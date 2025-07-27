@@ -1,9 +1,10 @@
 "use client";
-
-import { AlertTriangle, ShieldCheck, ShieldOff, VenetianMask } from 'lucide-react';
+import { useState } from 'react';
+import { AlertTriangle, ShieldCheck, ShieldOff, VenetianMask, Forward, Sparkles } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useTypewriter } from '@/hooks/use-typewriter';
+import { Button } from './ui/button';
 
 interface SecurityExampleProps {
   title: string;
@@ -43,7 +44,22 @@ export const SecurityExample = ({
   prompt,
   vulnerableResponse,
 }: SecurityExampleProps) => {
-  const typedVulnerableResponse = useTypewriter(vulnerableResponse, 15);
+  const [simulating, setSimulating] = useState(false);
+  const [completed, setCompleted] = useState(false);
+  const typedVulnerableResponse = useTypewriter(completed ? vulnerableResponse : '', 15);
+
+  const handleSimulate = () => {
+    setSimulating(true);
+    setCompleted(false);
+    setTimeout(() => {
+      setSimulating(false);
+      setCompleted(true);
+    }, 800 + Math.random() * 500);
+  };
+  
+  const handleReset = () => {
+    setCompleted(false);
+  };
 
   return (
     <Card className="border-destructive/30 bg-destructive/5">
@@ -69,15 +85,26 @@ export const SecurityExample = ({
             <p className="font-mono text-xs text-foreground">{prompt}</p>
           </div>
         </div>
-        <div>
-          <h4 className="font-semibold text-sm mb-2 text-muted-foreground">Vulnerable AI Response:</h4>
-          <div className="p-3 bg-background/50 rounded-md border border-destructive/50 min-h-[80px]">
-            <p className="font-mono text-xs text-destructive">{typedVulnerableResponse}</p>
-          </div>
+        <div className="flex justify-end">
+            <Button 
+                variant="destructive" 
+                size="sm"
+                onClick={completed ? handleReset : handleSimulate} 
+                disabled={simulating}
+            >
+                {completed ? 'Reset' : (simulating ? 'Simulating Attack...' : 'Run Attack Simulation')}
+                {simulating ? <Sparkles className="ml-2 h-4 w-4 animate-spin" /> : <Forward className="ml-2 h-4 w-4" />}
+            </Button>
         </div>
+        {completed && (
+            <div>
+            <h4 className="font-semibold text-sm mb-2 text-muted-foreground">Vulnerable AI Response:</h4>
+            <div className="p-3 bg-background/50 rounded-md border border-destructive/50 min-h-[80px]">
+                <p className="font-mono text-xs text-destructive">{typedVulnerableResponse}</p>
+            </div>
+            </div>
+        )}
       </CardContent>
     </Card>
   );
 };
-
-    
