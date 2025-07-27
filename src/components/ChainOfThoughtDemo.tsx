@@ -23,6 +23,7 @@ interface Step {
 interface Scenario {
   title: string;
   problem: string;
+  promptToLlm: string;
   steps: Step[];
   finalAnswer: string;
 }
@@ -31,6 +32,7 @@ const scenarios: Scenario[] = [
   {
     title: "Mathematical Problem",
     problem: "Sarah has 15 apples. She gives 1/3 of them to her brother, then buys 8 more apples. Finally, she gives half of what she has to her neighbor. How many apples does Sarah have left?",
+    promptToLlm: "You have access to a calculator tool. Solve the following problem by thinking step-by-step:\n\nSarah has 15 apples. She gives 1/3 of them to her brother, then buys 8 more apples. Finally, she gives half of what she has to her neighbor. How many apples does Sarah have left?",
     steps: [
       { type: 'planning', content: 'I need to solve this step-by-step, keeping track of the number of apples Sarah has at each stage.' },
       { type: 'calculation', content: 'First, calculate 1/3 of 15 apples.', tool: { name: 'Calculator', input: '15 * (1/3)', output: '5' } },
@@ -44,6 +46,7 @@ const scenarios: Scenario[] = [
   {
     title: "React Component Development",
     problem: "I need to create a React component that displays a list of users with search functionality. What's the best approach?",
+    promptToLlm: "You have access to a 'Web Search' tool and a 'Code Snippet' tool. Outline the best approach to create a React component that fetches and displays a list of users with client-side search functionality.",
     steps: [
         { type: 'planning', content: "Okay, I'll outline the steps to create a functional React user list component with search. I'll need state for the user list, the search query, and the filtered list." },
         { type: 'search', content: "First, I'll search for the best way to fetch data in a React component.", tool: { name: "Web Search", input: "react fetch data useEffect hook", output: "Using the `useEffect` hook with an empty dependency array is the standard for fetching initial data."}},
@@ -58,6 +61,7 @@ const scenarios: Scenario[] = [
   {
     title: "Complex Calculation",
     problem: "Calculate the compound interest on $5000 invested for 3 years at 4.5% annual interest, compounded quarterly.",
+    promptToLlm: "You have access to a calculator tool. Solve the following problem by thinking step-by-step:\n\nCalculate the compound interest on $5000 invested for 3 years at 4.5% annual interest, compounded quarterly.",
     steps: [
       { type: 'planning', content: "I'll use the formula A = P(1 + r/n)^(nt). First, I need to identify all the variables: P, r, n, and t." },
       { type: 'thinking', content: 'Given: P=$5000, r=4.5% (which is 0.045), n=4 (quarterly), t=3 years. Now I can substitute these into the formula.' },
@@ -178,9 +182,15 @@ export const ChainOfThoughtDemo = () => {
                         ))}
                     </TabsList>
                     
-                    <div className="mt-4 p-4 bg-background/50 rounded-lg">
-                        <h4 className="font-semibold text-foreground mb-2">Problem:</h4>
-                        <p className="text-muted-foreground">{activeScenario.problem}</p>
+                    <div className="mt-4 p-4 bg-background/50 rounded-lg space-y-4">
+                        <div>
+                            <h4 className="font-semibold text-foreground mb-2">Problem:</h4>
+                            <p className="text-muted-foreground">{activeScenario.problem}</p>
+                        </div>
+                         <div>
+                            <h4 className="font-semibold text-foreground mb-2">Prompt to LLM:</h4>
+                            <p className="text-muted-foreground font-mono text-sm bg-muted p-3 rounded-md border whitespace-pre-wrap">{activeScenario.promptToLlm}</p>
+                        </div>
                     </div>
 
                     <div className="flex justify-center my-6">
