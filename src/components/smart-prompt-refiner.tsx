@@ -1,6 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useEffect, useRef } from 'react';
 import { refinePromptAction, type FormState } from '@/app/actions';
 import { Button } from '@/components/ui/button';
@@ -35,7 +36,7 @@ function SubmitButton() {
 
 export function SmartPromptRefiner() {
   const initialState: FormState = { message: '' };
-  const [state, formAction] = useFormState(refinePromptAction, initialState);
+  const [state, formAction] = useActionState(refinePromptAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
