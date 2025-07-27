@@ -4,10 +4,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, ChevronRight, Calculator, Brain, Link, Code, BrainCircuit, FileCode, CheckCircle, Package, Search, Globe } from 'lucide-react';
+import { Check, Brain, Link, Calculator, BrainCircuit, CheckCircle, Package, Search, Globe, FileCode } from 'lucide-react';
 import { useTypewriter } from '@/hooks/use-typewriter';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from './ui/badge';
 
 type StepType = 'thought' | 'action' | 'observation' | 'final';
 
@@ -18,6 +19,7 @@ interface Step {
     name: string;
     input: string;
   };
+  observation?: string;
 }
 
 interface Scenario {
@@ -50,12 +52,9 @@ Final Answer: the final answer to the original input question
 Begin!`,
     steps: [
       { type: 'thought', content: 'I need to solve this multi-step problem by breaking it down. First, I will calculate how many apples Sarah gives to her brother.' },
-      { type: 'action', content: 'Use the calculator to find 1/3 of 15.', tool: { name: 'Calculator', input: '15 * (1/3)' } },
-      { type: 'observation', content: '5' },
+      { type: 'action', content: 'Use the calculator to find 1/3 of 15.', tool: { name: 'Calculator', input: '15 * (1/3)' }, observation: '5' },
       { type: 'thought', content: 'Okay, Sarah gives away 5 apples, so she has 15 - 5 = 10 apples left. Next, she buys 8 more, which means she now has 10 + 8 = 18 apples.'},
-      { type: 'thought', content: 'Finally, she gives half of her 18 apples to her neighbor. I need to calculate half of 18.'},
-      { type: 'action', content: 'Use the calculator to find 18 / 2.', tool: { name: 'Calculator', input: '18 / 2' } },
-      { type: 'observation', content: '9' },
+      { type: 'action', content: 'Finally, she gives half of her 18 apples to her neighbor. I need to calculate half of 18.', tool: { name: 'Calculator', input: '18 / 2' }, observation: '9' },
       { type: 'final', content: 'I now know the final answer.' },
     ],
     finalAnswer: "Sarah has 9 apples left.",
@@ -81,10 +80,8 @@ Final Answer: the final answer to the original input question
 Begin!`,
     steps: [
         { type: 'thought', content: "To create a React user list with search functionality, I need to fetch user data, store it in state, and create another state for the search term. Then I'll filter the displayed users based on the search term." },
-        { type: 'action', content: "I'll search for the best practices for fetching data in modern React applications.", tool: { name: 'Web Search', input: 'react data fetching best practices hooks' } },
-        { type: 'observation', content: "Using the `useEffect` hook to fetch data on component mount and the `useState` hook to store it is the standard approach." },
-        { type: 'action', content: "Now I will generate a code skeleton for the component with state for users and search term, and an effect for fetching data.", tool: { name: 'Code Snippet Generator', input: 'React functional component with useState and useEffect for fetching a user list' } },
-        { type: 'observation', content: "```javascript\nimport React, { useState, useEffect } from 'react';\n\nconst UserList = () => {\n  const [users, setUsers] = useState([]);\n  const [searchTerm, setSearchTerm] = useState('');\n\n  useEffect(() => {\n    fetch('https://api.example.com/users')\n      .then(res => res.json())\n      .then(data => setUsers(data));\n  }, []);\n\n  // ... rendering logic here\n}\n```" },
+        { type: 'action', content: "I'll search for the best practices for fetching data in modern React applications.", tool: { name: 'Web Search', input: 'react data fetching best practices hooks' }, observation: "Using the `useEffect` hook to fetch data on component mount and the `useState` hook to store it is the standard approach." },
+        { type: 'action', content: "Now I will generate a code skeleton for the component with state for users and search term, and an effect for fetching data.", tool: { name: 'Code Snippet Generator', input: 'React functional component with useState and useEffect for fetching a user list' }, observation: "```javascript\nimport React, { useState, useEffect } from 'react';\n\nconst UserList = () => {\n  const [users, setUsers] = useState([]);\n  const [searchTerm, setSearchTerm] = useState('');\n\n  useEffect(() => {\n    fetch('https://api.example.com/users')\n      .then(res => res.json())\n      .then(data => setUsers(data));\n  }, []);\n\n  // ... rendering logic here\n}\n```" },
         { type: 'thought', content: "This code provides a solid foundation. The final component will need an input field to update the `searchTerm` state and logic within the return statement to map over a filtered user list." },
         { type: 'final', content: 'I have a clear plan for the best approach.' }
     ],
@@ -111,11 +108,9 @@ Final Answer: the final answer to the original input question
 Begin!`,
     steps: [
       { type: 'thought', content: 'First, I need to find the top 3 most populous countries and their current populations.' },
-      { type: 'action', content: 'Search online for the most populous countries.', tool: { name: 'Web Search', input: 'top 3 most populous countries and their populations 2023' } },
-      { type: 'observation', content: '1. India (approx. 1.428 billion), 2. China (approx. 1.425 billion), 3. United States (approx. 339 million).' },
+      { type: 'action', content: 'Search online for the most populous countries.', tool: { name: 'Web Search', input: 'top 3 most populous countries and their populations 2023' }, observation: '1. India (approx. 1.428 billion), 2. China (approx. 1.425 billion), 3. United States (approx. 339 million).' },
       { type: 'thought', content: 'Now I need to add these populations together. I will use the calculator tool for accuracy.'},
-      { type: 'action', content: 'Use the calculator to sum the three populations.', tool: { name: 'Calculator', input: '1428000000 + 1425000000 + 339000000' } },
-      { type: 'observation', content: '3192000000' },
+      { type: 'action', content: 'Use the calculator to sum the three populations.', tool: { name: 'Calculator', input: '1428000000 + 1425000000 + 339000000' }, observation: '3192000000' },
       { type: 'final', content: 'I now know the final answer.' },
     ],
     finalAnswer: "The total population of the top 3 most populous countries (India, China, and the United States) is approximately 3.192 billion.",
@@ -123,40 +118,63 @@ Begin!`,
 ];
 
 const stepConfig = {
-    thought: { icon: <Brain />, color: 'text-blue-400', label: 'Thought' },
-    action: { icon: <Package />, color: 'text-green-400', label: 'Action' },
-    observation: { icon: <Search />, color: 'text-pink-400', label: 'Observation' },
-    final: { icon: <CheckCircle />, color: 'text-purple-400', label: 'Thought' },
-  };
+    thought: { icon: <Brain />, color: 'border-blue-500/50', label: 'Thought' },
+    action: { icon: <Package />, color: 'border-green-500/50', label: 'Action' },
+    final: { icon: <CheckCircle />, color: 'border-purple-500/50', label: 'Final Thought' },
+    observation: { icon: <Search />, color: 'border-pink-500/50', label: 'Observation'},
+};
 
-const ChainOfThoughtStep = ({ step, isVisible }: { step: Step; isVisible: boolean }) => {
+const getToolIcon = (toolName: string) => {
+    switch(toolName) {
+        case 'Calculator': return <Calculator className="w-4 h-4 inline-block mr-2" />;
+        case 'Web Search': return <Globe className="w-4 h-4 inline-block mr-2" />;
+        case 'Code Snippet Generator': return <FileCode className="w-4 h-4 inline-block mr-2" />;
+        default: return <Package className="w-4 h-4 inline-block mr-2" />;
+    }
+}
+
+const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; index: number }) => {
     const config = stepConfig[step.type];
     const typewriterContent = useTypewriter(isVisible ? step.content : '', 20);
-
-    const getToolIcon = (toolName: string) => {
-        switch(toolName) {
-            case 'Calculator': return <Calculator className="w-4 h-4 inline-block mr-1" />;
-            case 'Web Search': return <Globe className="w-4 h-4 inline-block mr-1" />;
-            case 'Code Snippet Generator': return <FileCode className="w-4 h-4 inline-block mr-1" />;
-            default: return <Package className="w-4 h-4 inline-block mr-1" />;
-        }
-    }
+    const typewriterObservation = useTypewriter(isVisible ? (step.observation ?? '') : '', 20);
 
     return (
         <div className={cn(
             "transition-all duration-500 transform",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
         )}>
-             <p className={`font-semibold ${config.color} mb-1 flex items-center`}>{config.icon} <span className="ml-2">{config.label}:</span></p>
-             <div className='pl-8 border-l-2 border-border ml-3'>
-                <p className="text-muted-foreground whitespace-pre-wrap">{typewriterContent}</p>
-                {step.tool && isVisible && (
-                    <div className="mt-2 font-mono text-xs p-2 bg-black/30 rounded-md">
-                        <p className="flex items-center"><span className="text-foreground/70 mr-2">Tool:</span> {getToolIcon(step.tool.name)} {step.tool.name}</p>
-                        <p><span className="text-foreground/70">Input:</span> {step.tool.input}</p>
-                    </div>
-                )}
-             </div>
+            <Card className={cn("bg-background/40 border-l-4", config.color)}>
+                <CardHeader className='pb-4'>
+                    <CardTitle className="text-base flex justify-between items-center">
+                        <span className='flex items-center gap-2'>{config.icon} Step {index + 1}</span>
+                        <Badge variant="outline" className={cn(config.color, 'bg-muted')}>{config.label}</Badge>
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{typewriterContent}</p>
+                    {step.tool && (
+                        <div className="mt-4 font-mono text-xs p-3 bg-black/50 rounded-lg">
+                            <div className="flex items-center text-green-400 font-semibold">
+                                {getToolIcon(step.tool.name)}
+                                Tool Used: {step.tool.name}
+                            </div>
+                            <div className="mt-2">
+                                <p><span className="text-foreground/70">Input:</span> {step.tool.input}</p>
+                            </div>
+                        </div>
+                    )}
+                    {step.observation && (
+                        <div className="mt-4 border-t pt-4">
+                            <div className="flex items-center text-pink-400 font-semibold mb-2">
+                                <Search className="w-4 h-4 mr-2" /> Observation
+                            </div>
+                            <div className='text-muted-foreground whitespace-pre-wrap font-mono text-sm bg-muted/50 p-3 rounded-md border'>
+                               {typewriterObservation}
+                            </div>
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
         </div>
     );
 };
@@ -179,8 +197,9 @@ export const ChainOfThoughtDemo = () => {
 
         const interval = setInterval(() => {
             setVisibleStep((prev) => {
-                if (prev < activeScenario.steps.length - 1) {
-                    return prev + 1;
+                const nextStep = prev + 1;
+                if (nextStep < activeScenario.steps.length) {
+                    return nextStep;
                 }
                 clearInterval(interval);
                 setSimulating(false);
@@ -260,17 +279,15 @@ export const ChainOfThoughtDemo = () => {
                             <h4 className="font-semibold mb-4 text-accent flex items-center gap-2">
                                 <Link /> Reasoning Chain:
                             </h4>
-                             <div className="p-4 rounded-lg bg-background/50 border space-y-4">
-                                <p className="font-semibold text-foreground">Question: <span className="text-muted-foreground font-normal">{activeScenario.problem}</span></p>
-                                <div className='space-y-4'>
-                                    {activeScenario.steps.map((step, index) => (
-                                        <ChainOfThoughtStep 
-                                            key={index}
-                                            step={step}
-                                            isVisible={visibleStep >= index}
-                                        />
-                                    ))}
-                                </div>
+                             <div className="space-y-4">
+                                {activeScenario.steps.map((step, index) => (
+                                    <StepCard 
+                                        key={index}
+                                        step={step}
+                                        index={index}
+                                        isVisible={visibleStep >= index}
+                                    />
+                                ))}
                             </div>
                         </div>
                     )}
