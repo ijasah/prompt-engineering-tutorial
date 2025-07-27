@@ -8,6 +8,7 @@ import { Check, Brain, Link, Calculator, BrainCircuit, CheckCircle, Package, Sea
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from './ui/badge';
+import { useTypewriter } from '@/hooks/use-typewriter';
 
 type StepType = 'thought' | 'action' | 'observation' | 'final';
 
@@ -134,6 +135,8 @@ const getToolIcon = (toolName: string) => {
 
 const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; index: number }) => {
     const config = stepConfig[step.type];
+    const typedContent = useTypewriter(isVisible ? step.content : '', 20);
+    const typedObservation = useTypewriter(isVisible ? (step.observation ?? '') : '', 20);
 
     return (
         <div className={cn(
@@ -148,7 +151,7 @@ const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; 
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground whitespace-pre-wrap">{step.content}</p>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{typedContent}</p>
                     {step.tool && (
                         <div className="mt-4 font-mono text-xs p-3 bg-black/50 rounded-lg">
                             <div className="flex items-center text-green-400 font-semibold">
@@ -166,7 +169,7 @@ const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; 
                                 <Search className="w-4 h-4 mr-2" /> Observation
                             </div>
                             <div className='text-muted-foreground whitespace-pre-wrap font-mono text-sm bg-muted/50 p-3 rounded-md border min-h-[2.5rem]'>
-                               {step.observation}
+                               {typedObservation}
                             </div>
                         </div>
                     )}
@@ -183,6 +186,7 @@ export const ChainOfThoughtDemo = () => {
     const [visibleStep, setVisibleStep] = useState(-1);
 
     const activeScenario = useMemo(() => scenarios.find(s => s.title === selectedTab)!, [selectedTab]);
+    const finalAnswerText = useTypewriter(completed ? activeScenario.finalAnswer : '', 20);
 
     useEffect(() => {
         handleReset();
@@ -294,7 +298,7 @@ export const ChainOfThoughtDemo = () => {
                                 <Check /> Final Answer:
                             </h4>
                             <div className="p-4 bg-background rounded-md border whitespace-pre-wrap font-mono text-sm">
-                                {activeScenario.finalAnswer}
+                                {finalAnswerText}
                             </div>
                         </div>
                     )}
@@ -303,5 +307,3 @@ export const ChainOfThoughtDemo = () => {
         </Card>
     );
 };
-
-    
