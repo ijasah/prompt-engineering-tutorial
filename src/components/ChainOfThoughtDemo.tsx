@@ -168,7 +168,7 @@ const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; 
                             <div className="flex items-center text-pink-400 font-semibold mb-2">
                                 <Search className="w-4 h-4 mr-2" /> Observation
                             </div>
-                            <div className='text-muted-foreground whitespace-pre-wrap font-mono text-sm bg-muted/50 p-3 rounded-md border'>
+                            <div className='text-muted-foreground whitespace-pre-wrap font-mono text-sm bg-muted/50 p-3 rounded-md border min-h-[2.5rem]'>
                                {typewriterObservation}
                             </div>
                         </div>
