@@ -5,7 +5,6 @@ import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Check, Brain, Link, Calculator, BrainCircuit, CheckCircle, Package, Search, Globe, FileCode } from 'lucide-react';
-import { useTypewriter } from '@/hooks/use-typewriter';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from './ui/badge';
@@ -52,9 +51,9 @@ Final Answer: the final answer to the original input question
 Begin!`,
     steps: [
       { type: 'thought', content: 'I need to solve this multi-step problem by breaking it down. First, I will calculate how many apples Sarah gives to her brother.' },
-      { type: 'action', content: 'Use the calculator to find 1/3 of 15.', tool: { name: 'Calculator', input: '15 * (1/3)' }, observation: '5' },
+      { type: 'action', content: 'Use the calculator to find 1/3 of 15.', tool: { name: 'Calculator', input: '15 * (1/3)' }, observation: 'Result: 5' },
       { type: 'thought', content: 'Okay, Sarah gives away 5 apples, so she has 15 - 5 = 10 apples left. Next, she buys 8 more, which means she now has 10 + 8 = 18 apples.' },
-      { type: 'action', content: 'Finally, she gives half of her 18 apples to her neighbor. I need to calculate half of 18.', tool: { name: 'Calculator', input: '18 / 2' }, observation: '9' },
+      { type: 'action', content: 'Finally, she gives half of her 18 apples to her neighbor. I need to calculate half of 18.', tool: { name: 'Calculator', input: '18 / 2' }, observation: 'Result: 9' },
       { type: 'final', content: 'I now know the final answer.' },
     ],
     finalAnswer: "Sarah has 9 apples left.",
@@ -110,7 +109,7 @@ Begin!`,
       { type: 'thought', content: 'First, I need to find the top 3 most populous countries and their current populations.' },
       { type: 'action', content: 'Search online for the most populous countries.', tool: { name: 'Web Search', input: 'top 3 most populous countries and their populations 2023' }, observation: '1. India (approx. 1.428 billion), 2. China (approx. 1.425 billion), 3. United States (approx. 339 million).' },
       { type: 'thought', content: 'Now I need to add these populations together. I will use the calculator tool for accuracy.' },
-      { type: 'action', content: 'Use the calculator to sum the three populations.', tool: { name: 'Calculator', input: '1428000000 + 1425000000 + 339000000' }, observation: '3192000000' },
+      { type: 'action', content: 'Use the calculator to sum the three populations.', tool: { name: 'Calculator', input: '1428000000 + 1425000000 + 339000000' }, observation: 'Result: 3,192,000,000' },
       { type: 'final', content: 'I now know the final answer.' },
     ],
     finalAnswer: "The total population of the top 3 most populous countries (India, China, and the United States) is approximately 3.192 billion.",
@@ -135,8 +134,6 @@ const getToolIcon = (toolName: string) => {
 
 const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; index: number }) => {
     const config = stepConfig[step.type];
-    const typewriterContent = useTypewriter(isVisible ? step.content : '', 20);
-    const typewriterObservation = useTypewriter(isVisible ? (step.observation ?? '') : '', 20);
 
     return (
         <div className={cn(
@@ -151,7 +148,7 @@ const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; 
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-muted-foreground whitespace-pre-wrap">{typewriterContent}</p>
+                    <p className="text-muted-foreground whitespace-pre-wrap">{step.content}</p>
                     {step.tool && (
                         <div className="mt-4 font-mono text-xs p-3 bg-black/50 rounded-lg">
                             <div className="flex items-center text-green-400 font-semibold">
@@ -169,7 +166,7 @@ const StepCard = ({ step, isVisible, index }: { step: Step; isVisible: boolean; 
                                 <Search className="w-4 h-4 mr-2" /> Observation
                             </div>
                             <div className='text-muted-foreground whitespace-pre-wrap font-mono text-sm bg-muted/50 p-3 rounded-md border min-h-[2.5rem]'>
-                               {typewriterObservation}
+                               {step.observation}
                             </div>
                         </div>
                     )}
@@ -186,7 +183,6 @@ export const ChainOfThoughtDemo = () => {
     const [visibleStep, setVisibleStep] = useState(-1);
 
     const activeScenario = useMemo(() => scenarios.find(s => s.title === selectedTab)!, [selectedTab]);
-    const typewriterAnswer = useTypewriter(completed ? activeScenario.finalAnswer : '', 30);
 
     useEffect(() => {
         handleReset();
@@ -298,7 +294,7 @@ export const ChainOfThoughtDemo = () => {
                                 <Check /> Final Answer:
                             </h4>
                             <div className="p-4 bg-background rounded-md border whitespace-pre-wrap font-mono text-sm">
-                                {typewriterAnswer}
+                                {activeScenario.finalAnswer}
                             </div>
                         </div>
                     )}
