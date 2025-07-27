@@ -27,12 +27,14 @@ import { AdvancedTopPDemo } from '@/components/AdvancedTopPDemo';
 import { AdvancedTopKDemo } from '@/components/AdvancedTopKDemo';
 import { PromptSimulator } from '@/components/prompt-simulator';
 import { GuardrailExample } from '@/components/GuardrailExample';
+import { SmartPromptRefiner } from '@/components/smart-prompt-refiner';
 
 const sections = [
   { id: 'introduction', title: 'Introduction to Prompt Engineering', icon: <BookOpen className="h-8 w-8 text-primary" /> },
   { id: 'core-concepts', title: 'Core Concepts and Parameters', icon: <Brain className="h-8 w-8 text-primary" /> },
   { id: 'designing-prompts', title: 'Designing Prompts for Specific Tasks', icon: <Target className="h-8 w-8 text-primary" /> },
   { id: 'advanced-techniques', title: 'Advanced Techniques', icon: <Settings className="h-8 w-8 text-primary" /> },
+  { id: 'smart-refiner', title: 'Smart Prompt Refiner', icon: <Lightbulb className="h-8 w-8 text-primary" /> },
   { id: 'risks', title: 'Risks in Prompt Engineering', icon: <AlertTriangle className="h-8 w-8 text-destructive" /> },
   { id: 'guardrails', title: 'LLM Guardrails', icon: <Shield className="h-8 w-8 text-primary" /> },
 ];
@@ -255,6 +257,10 @@ const Index = () => {
                     />
                 </div>
               </div>
+            </Section>
+
+            <Section id="smart-refiner" title="Smart Prompt Refiner" icon={<Lightbulb className="h-8 w-8 text-primary" />}>
+              <SmartPromptRefiner />
             </Section>
 
             <Section id="risks" title="Risks in Prompt Engineering" icon={<AlertTriangle className="h-8 w-8 text-destructive" />}>
@@ -545,3 +551,5 @@ Spanish Translation: 'Soy azul.'"
 };
 
 export default Index;
+
+    
