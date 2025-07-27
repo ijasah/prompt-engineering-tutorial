@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, ChevronRight, Calculator, Brain, Link, Code, BrainCircuit, FileCode, CheckCircle, Package, Search } from 'lucide-react';
+import { Check, ChevronRight, Calculator, Brain, Link, Code, BrainCircuit, FileCode, CheckCircle, Package, Search, Globe } from 'lucide-react';
 import { useTypewriter } from '@/hooks/use-typewriter';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -62,16 +62,16 @@ Begin!`,
   },
   {
     title: "React Component Development",
-    problem: "I need to create a React component that displays a list of users with search functionality. What's the best approach?",
+    problem: "I need to create a React component that displays a list of users with search functionality. What is the best approach?",
     promptToLlm: `Answer the following questions as best you can. You have access to the following tools:
 
-Web Search, Code Snippet
+Web Search, Code Snippet Generator
 
 Use the following format:
 
 Question: the input question you must answer
 Thought: you should always think about what to do
-Action: the action to take, should be one of [Web Search, Code Snippet]
+Action: the action to take, should be one of [Web Search, Code Snippet Generator]
 Action Input: the input to the action
 Observation: the result of the action
 ... (this Thought/Action/Action Input/Observation can repeat N times)
@@ -83,13 +83,43 @@ Begin!`,
         { type: 'thought', content: "To create a React user list with search, I need to fetch user data, store it in state, and have another state for the search term. Then I'll filter the users based on the search term." },
         { type: 'action', content: "I'll search for the best practice for data fetching in React.", tool: { name: 'Web Search', input: 'react data fetching best practices hooks' } },
         { type: 'observation', content: "Using `useEffect` to fetch data on component mount and `useState` to store it is the standard approach." },
-        { type: 'action', content: "Now I need a code skeleton for the component.", tool: { name: 'Code Snippet', input: 'React component with useState and useEffect for data fetching' } },
+        { type: 'action', content: "Now I need a code skeleton for the component.", tool: { name: 'Code Snippet Generator', input: 'React component with useState and useEffect for data fetching' } },
         { type: 'observation', content: "```javascript\nconst [users, setUsers] = useState([]);\nconst [searchTerm, setSearchTerm] = useState('');\n\nuseEffect(() => {\n  fetch('https://api.example.com/users')\n    .then(res => res.json())\n    .then(data => setUsers(data));\n}, []);\n```" },
-        { type: 'thought', content: "This is a good starting point. The final component will need an input field for search and a mapping function to render the filtered users. The filtering logic can be done in the render method." },
+        { type: 'thought', content: "This is a good starting point. The final component will need an input field for search and a mapping function to render the filtered users. The filtering logic can be done inside the component's return statement." },
         { type: 'final', content: 'I now know the final answer.' }
     ],
     finalAnswer: "The best approach involves using `useState` for managing users and search input, `useEffect` for data fetching on component mount, and rendering the filtered list based on the search term."
   },
+   {
+    title: "Complex Calculation",
+    problem: "What is the sum of the populations of the top 3 most populous countries in the world?",
+    promptToLlm: `Answer the following questions as best you can. You have access to the following tools:
+
+Web Search, Calculator
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [Web Search, Calculator]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!`,
+    steps: [
+      { type: 'thought', content: 'First, I need to find the top 3 most populous countries and their populations.' },
+      { type: 'action', content: 'Search for the most populous countries.', tool: { name: 'Web Search', input: 'top 3 most populous countries 2023' } },
+      { type: 'observation', content: '1. India (1.428 billion), 2. China (1.425 billion), 3. United States (339 million).' },
+      { type: 'thought', content: 'Now I need to add these populations together. I will use the calculator tool.'},
+      { type: 'action', content: 'Use the calculator to sum the populations.', tool: { name: 'Calculator', input: '1,428,000,000 + 1,425,000,000 + 339,000,000' } },
+      { type: 'observation', content: '3,192,000,000' },
+      { type: 'final', content: 'I now know the final answer.' },
+    ],
+    finalAnswer: "The total population of the top 3 most populous countries (India, China, and the United States) is approximately 3.192 billion.",
+  }
 ];
 
 const stepConfig = {
@@ -103,17 +133,26 @@ const ChainOfThoughtStep = ({ step, isVisible }: { step: Step; isVisible: boolea
     const config = stepConfig[step.type];
     const typewriterContent = useTypewriter(isVisible ? step.content : '', 20);
 
+    const getToolIcon = (toolName: string) => {
+        switch(toolName) {
+            case 'Calculator': return <Calculator className="w-4 h-4 inline-block mr-1" />;
+            case 'Web Search': return <Globe className="w-4 h-4 inline-block mr-1" />;
+            case 'Code Snippet Generator': return <FileCode className="w-4 h-4 inline-block mr-1" />;
+            default: return <Package className="w-4 h-4 inline-block mr-1" />;
+        }
+    }
+
     return (
         <div className={cn(
             "transition-all duration-500 transform",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
         )}>
-             <p className={`font-semibold ${config.color} mb-1`}>{config.label}:</p>
-             <div className='pl-4 border-l-2 border-border'>
+             <p className={`font-semibold ${config.color} mb-1 flex items-center`}>{config.icon} <span className="ml-2">{config.label}:</span></p>
+             <div className='pl-8 border-l-2 border-border ml-3'>
                 <p className="text-muted-foreground whitespace-pre-wrap">{typewriterContent}</p>
                 {step.tool && isVisible && (
                     <div className="mt-2 font-mono text-xs p-2 bg-black/30 rounded-md">
-                        <p><span className="text-foreground/70">Tool:</span> {step.tool.name}</p>
+                        <p className="flex items-center"><span className="text-foreground/70 mr-2">Tool:</span> {getToolIcon(step.tool.name)} {step.tool.name}</p>
                         <p><span className="text-foreground/70">Input:</span> {step.tool.input}</p>
                     </div>
                 )}
@@ -173,12 +212,12 @@ export const ChainOfThoughtDemo = () => {
                     Chain-of-Thought with Tool Calling
                 </CardTitle>
                 <CardDescription>
-                    Watch AI break down complex problems step-by-step using external tools.
+                    Watch AI break down complex problems step-by-step using external tools. This demonstrates the ReAct (Reason + Act) framework.
                 </CardDescription>
             </CardHeader>
             <CardContent>
                 <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto">
+                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
                         {scenarios.map(s => (
                             <TabsTrigger key={s.title} value={s.title}>{s.title}</TabsTrigger>
                         ))}
