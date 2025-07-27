@@ -1,3 +1,4 @@
+// src/components/ChainOfThoughtDemo.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from 'react';
@@ -7,7 +8,6 @@ import { Check, ChevronRight, Calculator, Brain, Link, Code, BrainCircuit, FileC
 import { useTypewriter } from '@/hooks/use-typewriter';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CodeBlock } from './ui/code-block';
 
 type StepType = 'thinking' | 'calculation' | 'code' | 'conclusion' | 'planning' | 'search';
 interface Step {
@@ -42,7 +42,7 @@ const scenarios: Scenario[] = [
     finalAnswer: "Sarah has 9 apples left.",
   },
   {
-    title: "React Component",
+    title: "React Component Development",
     problem: "I need to create a React component that displays a list of users with search functionality. What's the best approach?",
     steps: [
         { type: 'planning', content: "Okay, I'll outline the steps to create a functional React user list component with search. I'll need state for the user list, the search query, and the filtered list." },
@@ -56,7 +56,7 @@ const scenarios: Scenario[] = [
     finalAnswer: "The best approach involves using `useState` for managing users and search input, `useEffect` for data fetching on component mount, and rendering the filtered list based on the search term."
   },
   {
-    title: "Compound Interest",
+    title: "Complex Calculation",
     problem: "Calculate the compound interest on $5000 invested for 3 years at 4.5% annual interest, compounded quarterly.",
     steps: [
       { type: 'planning', content: "I'll use the formula A = P(1 + r/n)^(nt). First, I need to identify all the variables: P, r, n, and t." },
