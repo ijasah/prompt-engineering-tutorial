@@ -27,6 +27,7 @@ import { AdvancedTopPDemo } from '@/components/AdvancedTopPDemo';
 import { AdvancedTopKDemo } from '@/components/AdvancedTopKDemo';
 import { PromptSimulator } from '@/components/prompt-simulator';
 import { GuardrailSimulator } from '@/components/GuardrailSimulator';
+import { CodeBlock } from '@/components/ui/code-block';
 
 const sections = [
   { id: 'introduction', title: 'Introduction to Prompt Engineering', icon: <BookOpen className="h-8 w-8 text-primary" /> },
@@ -332,15 +333,103 @@ const Index = () => {
 
             <Section id="guardrails" title="LLM Guardrails" icon={<Shield className="h-8 w-8 text-primary" />}>
               <div className="space-y-6">
-                 <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg">
-                    <h3 className="text-xl font-semibold mb-3 text-primary">Interactive Guardrail Demonstrations</h3>
-                    <p className="text-muted-foreground">
-                        Guardrails are a set of rules and validations to ensure AI systems operate safely and ethically. This simulator demonstrates how 20 distinct guardrails work in practice. Select a guardrail from the dropdown below and run the simulation to see how it handles a problematic prompt.
-                    </p>
+                <p className="text-muted-foreground">
+                  Guardrails in AI refer to a set of rules, validations, and protective mechanisms designed to ensure that artificial intelligence systems operate safely, ethically, and in alignment with human values. As AI models, especially large language models (LLMs), become increasingly capable and widely adopted, the importance of incorporating guardrails into their design and deployment has grown significantly.
+                </p>
+
+                <Image 
+                  src="https://media.datacamp.com/cms/google/ad_4nxesil5iw5ln22uvd_5il1untmmqtlclvna48tfkbctfkii__le8bbhbs8mvgwzx2qxrtpdhh-etae7mjxfuxjxuux-_vatjzqj307t0ah_cthtjfgkbg5kyaf1yblhtj9qxmfjscy1smuhlyiio.png"
+                  alt="LLM Guardrails Diagram"
+                  width={800}
+                  height={450}
+                  className="rounded-lg border shadow-md"
+                  data-ai-hint="data visualization"
+                />
+
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">Why Guardrails Are Important</h3>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                    <li><strong>Safety:</strong> Prevents AI from generating harmful or dangerous content.</li>
+                    <li><strong>Ethical Use:</strong> Ensures AI aligns with moral and ethical standards.</li>
+                    <li><strong>Bias Mitigation:</strong> Reduces the risk of perpetuating social, gender, or racial biases.</li>
+                    <li><strong>Compliance:</strong> Helps meet regulatory standards (e.g., privacy laws).</li>
+                    <li><strong>User Trust:</strong> Builds confidence among users and stakeholders.</li>
+                  </ul>
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">Real-World Examples of AI Guardrails</h3>
+                  <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                    <li><strong>Anthropic’s Claude Opus 4:</strong> Required ASL-3 safeguards to counter manipulation risks.</li>
+                    <li><strong>Aporia’s AI Guardrails Platform:</strong> Filters to prevent inaccurate or privacy-violating responses.</li>
+                    <li><strong>Amazon Bedrock Guardrails:</strong> Provides configurable filtering policies.</li>
+                    <li><strong>Meta’s Training Guidelines:</strong> Tiered content moderation to handle unsafe chatbot prompts.</li>
+                  </ul>
                 </div>
                 
-                <GuardrailSimulator />
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">Sample Use Cases</h3>
+                   <ul className="list-disc list-inside space-y-2 text-muted-foreground">
+                    <li>Healthcare Chatbots</li>
+                    <li>Financial Services</li>
+                    <li>Customer Support Bots</li>
+                    <li>Educational Tools</li>
+                  </ul>
+                </div>
 
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">Implementing Guardrails in Python</h3>
+                  <p className="text-muted-foreground mb-2">Here are some examples of how you might implement guardrails using a library like `guardrails-ai`.</p>
+                  <h4 className="font-semibold text-foreground mt-4 mb-2">Installation</h4>
+                  <CodeBlock code={`pip install guardrails-ai\nguardrails configure`} />
+                  <h4 className="font-semibold text-foreground mt-4 mb-2">Basic Usage</h4>
+                  <CodeBlock code={`from guardrails import Guard
+from guardrails.hub import Toxicity
+
+toxicity_validator = Toxicity(threshold=0.5)
+guard = Guard(validators=[toxicity_validator])
+
+result = guard.validate("I hate you")
+
+if result.valid:
+    print("Valid")
+else:
+    print("Toxic content detected")`} />
+                </div>
+
+                <div>
+                  <h3 className="text-xl font-semibold mb-3 text-foreground">Common Validator Types and Examples</h3>
+                    <h4 className='font-semibold text-foreground mt-4 mb-2'>RegexMatch</h4>
+                    <CodeBlock code={`from guardrails.hub import RegexMatch\nRegexMatch(regex=r"\\d{10}")`} />
+                    <h4 className='font-semibold text-foreground mt-4 mb-2'>ToxicLanguage</h4>
+                    <CodeBlock code={`ToxicLanguage(threshold=0.5)`} />
+                    <h4 className='font-semibold text-foreground mt-4 mb-2'>DetectPII</h4>
+                    <CodeBlock code={`from guardrails.hub import DetectPII\nDetectPII(pii_entities=["EMAIL_ADDRESS"])`} />
+                    <h4 className='font-semibold text-foreground mt-4 mb-2'>ValidChoices</h4>
+                    <CodeBlock code={`from guardrails.hub import ValidChoices\nValidChoices(choices=["OpenAI", "Anthropic"])`} />
+                     <h4 className='font-semibold text-foreground mt-4 mb-2'>RestrictToTopic</h4>
+                    <CodeBlock code={`from guardrails.hub import RestrictToTopic\nRestrictToTopic(valid_topics=["bike"], invalid_topics=["phone"])`} />
+                    <h4 className='font-semibold text-foreground mt-4 mb-2'>Custom Validator</h4>
+                    <CodeBlock code={`@register_validator(name="no_profanity", data_type="string")
+def no_profanity(value: str, metadata: dict):
+    if "badword" in value:
+        return FailResult("Profanity detected")
+    return PassResult()`} />
+                </div>
+
+                <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg mt-8">
+                  <h3 className="text-xl font-semibold mb-3 text-primary">Interactive Guardrail Demonstrations</h3>
+                  <p className="text-muted-foreground">
+                      Guardrails are a set of rules and validations to ensure AI systems operate safely and ethically. This simulator demonstrates how 20 distinct guardrails work in practice. Select a guardrail from the dropdown below and run the simulation to see how it handles a problematic prompt.
+                  </p>
+                </div>
+
+                <GuardrailSimulator />
+                
+                <div>
+                    <h3 className="text-xl font-semibold mb-3 mt-8 text-foreground">Conclusion</h3>
+                    <p className="text-muted-foreground">AI guardrails are indispensable for ensuring the safe, ethical, and reliable operation of AI systems. By leveraging tools like guardrails-ai and employing validators tailored to specific use cases, developers can create more secure and trustworthy AI applications. As the field evolves, guardrails will continue to play a pivotal role in aligning AI behavior with human values and societal norms.</p>
+                </div>
               </div>
             </Section>
           </main>
