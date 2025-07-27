@@ -25,6 +25,7 @@ import { AdvancedTemperatureDemo } from '@/components/AdvancedTemperatureDemo';
 import { AdvancedTopPDemo } from '@/components/AdvancedTopPDemo';
 import { AdvancedTopKDemo } from '@/components/AdvancedTopKDemo';
 import { PromptSimulator } from '@/components/prompt-simulator';
+import { GuardrailDemo } from '@/components/GuardrailDemo';
 
 const sections = [
   { id: 'introduction', title: 'Introduction to Prompt Engineering', icon: <BookOpen className="h-8 w-8 text-primary" /> },
@@ -346,22 +347,7 @@ const Index = () => {
                     <li><strong>User Trust:</strong> Builds confidence in AI systems</li>
                   </ul>
                 </div>
-                <div className="bg-muted/20 p-4 rounded-lg border">
-                  <h4 className="font-semibold text-foreground mb-2">Implementation Example</h4>
-                  <pre className="text-xs text-muted-foreground bg-background/50 p-3 rounded border overflow-x-auto">
-{`from guardrails import Guard
-from guardrails.hub import ToxicityValidator
-
-toxicity_validator = ToxicityValidator(threshold=0.5)
-guard = Guard(validators=[toxicity_validator])
-
-result = guard.validate("I hate you")
-if result.valid:
-    print("Valid")
-else:
-    print("Toxic content detected")`}
-                  </pre>
-                </div>
+                <GuardrailDemo />
               </div>
             </Section>
           </main>
@@ -392,3 +378,5 @@ else:
 };
 
 export default Index;
+
+    
