@@ -9,7 +9,6 @@ const sections = [
   { id: 'core-concepts', title: 'Core Concepts', icon: <Brain className="w-4 h-4" /> },
   { id: 'designing-prompts', title: 'Designing Prompts', icon: <Target className="w-4 h-4" /> },
   { id: 'advanced-techniques', title: 'Advanced Techniques', icon: <Settings className="w-4 h-4" /> },
-  { id: 'smart-refiner', title: 'Smart Refiner', icon: <Shield className="w-4 h-4" /> },
   { id: 'risks', title: 'Risks', icon: <AlertTriangle className="w-4 h-4" /> },
   { id: 'guardrails', title: 'Guardrails', icon: <Shield className="w-4 h-4" /> },
 ];
@@ -50,5 +49,3 @@ export const TableOfContents = ({ activeSectionId, onLinkClick }: TableOfContent
     </div>
   );
 };
-
-    
