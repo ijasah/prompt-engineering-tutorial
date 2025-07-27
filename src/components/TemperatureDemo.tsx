@@ -10,18 +10,17 @@ const creativeSentences = [
 ];
 
 const predictableSentences = [
-    "The sky is blue.",
-    "Water is wet.",
-    "Fire is hot.",
-    "The sun is bright.",
-    "Grass is green.",
+    "The sky is blue during a clear day.",
+    "Water is a liquid at room temperature.",
+    "The sun provides light and warmth to the Earth.",
+    "Grass is a common type of plant.",
 ];
 
 export const TemperatureDemo = () => {
     const generateText = (value: number) => {
         if (value < 0.3) return predictableSentences[Math.floor(Math.random() * predictableSentences.length)];
         if (value > 0.7) return creativeSentences[Math.floor(Math.random() * creativeSentences.length)];
-        return "The cat sat on the mat.";
+        return "The cat sat comfortably on the mat near the fireplace.";
     };
     
     return (
@@ -32,9 +31,8 @@ export const TemperatureDemo = () => {
             min={0}
             max={1}
             step={0.1}
+            prompt="Write a simple sentence about the world."
             generateText={generateText}
         />
     )
 }
-
-    
