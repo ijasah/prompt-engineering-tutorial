@@ -9,14 +9,14 @@ import { useTypewriter } from '@/hooks/use-typewriter';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-type StepType = 'thinking' | 'calculation' | 'code' | 'conclusion' | 'planning' | 'search';
+type StepType = 'thought' | 'action' | 'observation' | 'final';
+
 interface Step {
   type: StepType;
   content: string;
   tool?: {
     name: string;
     input: string;
-    output: string;
   };
 }
 
@@ -32,90 +32,92 @@ const scenarios: Scenario[] = [
   {
     title: "Mathematical Problem",
     problem: "Sarah has 15 apples. She gives 1/3 of them to her brother, then buys 8 more apples. Finally, she gives half of what she has to her neighbor. How many apples does Sarah have left?",
-    promptToLlm: "You have access to a calculator tool. Solve the following problem by thinking step-by-step:\n\nSarah has 15 apples. She gives 1/3 of them to her brother, then buys 8 more apples. Finally, she gives half of what she has to her neighbor. How many apples does Sarah have left?",
+    promptToLlm: `Answer the following questions as best you can. You have access to the following tools:
+
+Calculator
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [Calculator]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!`,
     steps: [
-      { type: 'planning', content: 'I need to solve this step-by-step, keeping track of the number of apples Sarah has at each stage.' },
-      { type: 'calculation', content: 'First, calculate 1/3 of 15 apples.', tool: { name: 'Calculator', input: '15 * (1/3)', output: '5' } },
-      { type: 'thinking', content: 'Sarah gives 5 apples away, so she has 15 - 5 = 10 apples left.' },
-      { type: 'thinking', content: 'Next, she buys 8 more apples, so she has 10 + 8 = 18 apples.' },
-      { type: 'calculation', content: 'Finally, she gives away half of her 18 apples.', tool: { name: 'Calculator', input: '18 / 2', output: '9' } },
-      { type: 'conclusion', content: 'After giving 9 apples to her neighbor, Sarah has 9 apples left.' },
+      { type: 'thought', content: 'I need to solve this multi-step problem by breaking it down. First, calculate how many apples Sarah gives to her brother.' },
+      { type: 'action', content: 'Use the calculator to find 1/3 of 15.', tool: { name: 'Calculator', input: '15 * (1/3)' } },
+      { type: 'observation', content: '5' },
+      { type: 'thought', content: 'Okay, so 15 - 5 = 10 apples remaining. Now, she buys 8 more. 10 + 8 = 18 apples.'},
+      { type: 'thought', content: 'Finally, she gives half away. I need to calculate half of 18.'},
+      { type: 'action', content: 'Use the calculator to find 18 / 2.', tool: { name: 'Calculator', input: '18 / 2' } },
+      { type: 'observation', content: '9' },
+      { type: 'final', content: 'I now know the final answer.' },
     ],
     finalAnswer: "Sarah has 9 apples left.",
   },
   {
     title: "React Component Development",
     problem: "I need to create a React component that displays a list of users with search functionality. What's the best approach?",
-    promptToLlm: "You have access to a 'Web Search' tool and a 'Code Snippet' tool. Outline the best approach to create a React component that fetches and displays a list of users with client-side search functionality.",
+    promptToLlm: `Answer the following questions as best you can. You have access to the following tools:
+
+Web Search, Code Snippet
+
+Use the following format:
+
+Question: the input question you must answer
+Thought: you should always think about what to do
+Action: the action to take, should be one of [Web Search, Code Snippet]
+Action Input: the input to the action
+Observation: the result of the action
+... (this Thought/Action/Action Input/Observation can repeat N times)
+Thought: I now know the final answer
+Final Answer: the final answer to the original input question
+
+Begin!`,
     steps: [
-        { type: 'planning', content: "Okay, I'll outline the steps to create a functional React user list component with search. I'll need state for the user list, the search query, and the filtered list." },
-        { type: 'search', content: "First, I'll search for the best way to fetch data in a React component.", tool: { name: "Web Search", input: "react fetch data useEffect hook", output: "Using the `useEffect` hook with an empty dependency array is the standard for fetching initial data."}},
-        { type: 'code', content: "I'll start with the basic component structure and state management using `useState` for users, search term, and loading status.", tool: { name: 'Code Snippet', input: 'React Component Skeleton', output: `const [users, setUsers] = useState([]);\nconst [searchTerm, setSearchTerm] = useState('');\nconst [loading, setLoading] = useState(true);`}},
-        { type: 'code', content: "Now, I'll implement the `useEffect` hook to fetch user data from a placeholder API when the component mounts.", tool: { name: 'Code Snippet', input: 'Data Fetching', output: `useEffect(() => {\n  fetch('https://jsonplaceholder.typicode.com/users')\n    .then(res => res.json())\n    .then(data => {\n      setUsers(data);\n      setLoading(false);\n    });\n}, []);`}},
-        { type: 'thinking', content: "To handle the search, I need to filter the `users` array based on the `searchTerm`. A `useMemo` hook would be efficient here to avoid re-calculating on every render." },
-        { type: 'code', content: "I'll create the derived `filteredUsers` state and the search input handler.", tool: { name: 'Code Snippet', input: 'Search Logic', output: `const filteredUsers = users.filter(user =>\n  user.name.toLowerCase().includes(searchTerm.toLowerCase())\n);\n\nconst handleSearch = (e) => setSearchTerm(e.target.value);` }},
-        { type: 'conclusion', content: 'Finally, I will render the search input and the list of filtered users. This provides a complete, efficient, and clean component.' }
+        { type: 'thought', content: "To create a React user list with search, I need to fetch user data, store it in state, and have another state for the search term. Then I'll filter the users based on the search term." },
+        { type: 'action', content: "I'll search for the best practice for data fetching in React.", tool: { name: 'Web Search', input: 'react data fetching best practices hooks' } },
+        { type: 'observation', content: "Using `useEffect` to fetch data on component mount and `useState` to store it is the standard approach." },
+        { type: 'action', content: "Now I need a code skeleton for the component.", tool: { name: 'Code Snippet', input: 'React component with useState and useEffect for data fetching' } },
+        { type: 'observation', content: "```javascript\nconst [users, setUsers] = useState([]);\nconst [searchTerm, setSearchTerm] = useState('');\n\nuseEffect(() => {\n  fetch('https://api.example.com/users')\n    .then(res => res.json())\n    .then(data => setUsers(data));\n}, []);\n```" },
+        { type: 'thought', content: "This is a good starting point. The final component will need an input field for search and a mapping function to render the filtered users. The filtering logic can be done in the render method." },
+        { type: 'final', content: 'I now know the final answer.' }
     ],
     finalAnswer: "The best approach involves using `useState` for managing users and search input, `useEffect` for data fetching on component mount, and rendering the filtered list based on the search term."
-  },
-  {
-    title: "Complex Calculation",
-    problem: "Calculate the compound interest on $5000 invested for 3 years at 4.5% annual interest, compounded quarterly.",
-    promptToLlm: "You have access to a calculator tool. Solve the following problem by thinking step-by-step:\n\nCalculate the compound interest on $5000 invested for 3 years at 4.5% annual interest, compounded quarterly.",
-    steps: [
-      { type: 'planning', content: "I'll use the formula A = P(1 + r/n)^(nt). First, I need to identify all the variables: P, r, n, and t." },
-      { type: 'thinking', content: 'Given: P=$5000, r=4.5% (which is 0.045), n=4 (quarterly), t=3 years. Now I can substitute these into the formula.' },
-      { type: 'calculation', content: "Calculate the rate per period (r/n).", tool: { name: 'Calculator', input: '0.045 / 4', output: '0.01125' } },
-      { type: 'calculation', content: "Calculate the total number of compounding periods (nt).", tool: { name: 'Calculator', input: '4 * 3', output: '12' } },
-      { type: 'calculation', content: "Now, calculate the main term (1 + r/n)^(nt).", tool: { name: 'Calculator', input: '(1 + 0.01125)^12', output: '1.143208' } },
-      { type: 'calculation', content: "Finally, calculate the total amount A = P * (result from previous step).", tool: { name: 'Calculator', input: '5000 * 1.143208', output: '5716.04' } },
-      { type: 'conclusion', content: 'The total amount is $5716.04. The compound interest is the total amount minus the principal, which is $5716.04 - $5000 = $716.04.' },
-    ],
-    finalAnswer: "The compound interest is $716.04.",
   },
 ];
 
 const stepConfig = {
-    thinking: { icon: <Brain />, color: 'text-blue-400', bgColor: 'bg-blue-900/20' },
-    planning: { icon: <FileCode />, color: 'text-cyan-400', bgColor: 'bg-cyan-900/20' },
-    calculation: { icon: <Calculator />, color: 'text-green-400', bgColor: 'bg-green-900/20' },
-    code: { icon: <Code />, color: 'text-orange-400', bgColor: 'bg-orange-900/20' },
-    search: { icon: <Search />, color: 'text-pink-400', bgColor: 'bg-pink-900/20' },
-    conclusion: { icon: <CheckCircle />, color: 'text-purple-400', bgColor: 'bg-purple-900/20' },
+    thought: { icon: <Brain />, color: 'text-blue-400', label: 'Thought' },
+    action: { icon: <Package />, color: 'text-green-400', label: 'Action' },
+    observation: { icon: <Search />, color: 'text-pink-400', label: 'Observation' },
+    final: { icon: <CheckCircle />, color: 'text-purple-400', label: 'Thought' },
   };
 
-const ChainOfThoughtStep = ({ step, index, isVisible }: { step: Step; index: number; isVisible: boolean }) => {
+const ChainOfThoughtStep = ({ step, isVisible }: { step: Step; isVisible: boolean }) => {
     const config = stepConfig[step.type];
     const typewriterContent = useTypewriter(isVisible ? step.content : '', 20);
 
     return (
         <div className={cn(
-            "p-4 rounded-lg border-l-4 transition-all duration-500 transform",
+            "transition-all duration-500 transform",
             isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4',
-            config.bgColor,
-            `border-${config.color.replace('text-', '')}`
         )}>
-            <div className={`flex items-center gap-3 font-semibold ${config.color}`}>
-                <div className="flex items-center gap-2">
-                    {config.icon}
-                    <span>Step {index + 1}</span>
-                </div>
-                <span className="text-xs px-2 py-0.5 bg-foreground/10 rounded-full capitalize">{step.type}</span>
-            </div>
-            <p className="mt-2 text-muted-foreground whitespace-pre-wrap">{typewriterContent}</p>
-            {step.tool && isVisible && (
-                <div className="mt-3 pt-3 border-t border-foreground/10">
-                    <div className="font-mono text-xs p-3 bg-black/30 rounded-md">
-                        <div className="flex items-center gap-2 text-accent/80 font-semibold">
-                            <ChevronRight size={14}/> Tool: {step.tool.name}
-                        </div>
-                        <div className="mt-2 pl-4 border-l-2 border-accent/20">
-                            <p><span className="text-foreground/70">Input:</span> {step.tool.input}</p>
-                            <p><span className="text-foreground/70">Output:</span> {step.tool.output}</p>
-                        </div>
+             <p className={`font-semibold ${config.color} mb-1`}>{config.label}:</p>
+             <div className='pl-4 border-l-2 border-border'>
+                <p className="text-muted-foreground whitespace-pre-wrap">{typewriterContent}</p>
+                {step.tool && isVisible && (
+                    <div className="mt-2 font-mono text-xs p-2 bg-black/30 rounded-md">
+                        <p><span className="text-foreground/70">Tool:</span> {step.tool.name}</p>
+                        <p><span className="text-foreground/70">Input:</span> {step.tool.input}</p>
                     </div>
-                </div>
-            )}
+                )}
+             </div>
         </div>
     );
 };
@@ -176,7 +178,7 @@ export const ChainOfThoughtDemo = () => {
             </CardHeader>
             <CardContent>
                 <Tabs value={selectedTab} onValueChange={setSelectedTab} className="w-full">
-                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-3 h-auto">
+                    <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 h-auto">
                         {scenarios.map(s => (
                             <TabsTrigger key={s.title} value={s.title}>{s.title}</TabsTrigger>
                         ))}
@@ -188,8 +190,8 @@ export const ChainOfThoughtDemo = () => {
                             <p className="text-muted-foreground">{activeScenario.problem}</p>
                         </div>
                          <div>
-                            <h4 className="font-semibold text-foreground mb-2">Prompt to LLM:</h4>
-                            <p className="text-muted-foreground font-mono text-sm bg-muted p-3 rounded-md border whitespace-pre-wrap">{activeScenario.promptToLlm}</p>
+                            <h4 className="font-semibold text-foreground mb-2">Prompt to LLM (ReAct Framework):</h4>
+                            <p className="text-muted-foreground font-mono text-xs bg-muted p-3 rounded-md border whitespace-pre-wrap">{activeScenario.promptToLlm}</p>
                         </div>
                     </div>
 
@@ -219,15 +221,17 @@ export const ChainOfThoughtDemo = () => {
                             <h4 className="font-semibold mb-4 text-accent flex items-center gap-2">
                                 <Link /> Reasoning Chain:
                             </h4>
-                            <div className="space-y-4">
-                                {activeScenario.steps.map((step, index) => (
-                                    <ChainOfThoughtStep 
-                                        key={index}
-                                        step={step}
-                                        index={index}
-                                        isVisible={visibleStep >= index}
-                                    />
-                                ))}
+                             <div className="p-4 rounded-lg bg-background/50 border space-y-4">
+                                <p className="font-semibold text-foreground">Question: <span className="text-muted-foreground font-normal">{activeScenario.problem}</span></p>
+                                <div className='space-y-4'>
+                                    {activeScenario.steps.map((step, index) => (
+                                        <ChainOfThoughtStep 
+                                            key={index}
+                                            step={step}
+                                            isVisible={visibleStep >= index}
+                                        />
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}
