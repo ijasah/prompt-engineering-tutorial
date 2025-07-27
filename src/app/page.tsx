@@ -44,7 +44,7 @@ const Index = () => {
   const isScrolling = useRef(false);
 
   useEffect(() => {
-    sectionRefs.current = sectionRefs.current.slice(0, sections.length);
+    sectionRefs.current = sections.map(s => document.getElementById(s.id));
   }, []);
 
   const scrollToSection = (index: number) => {
@@ -72,19 +72,19 @@ const Index = () => {
 
   useEffect(() => {
     const observerOptions = {
-      root: null,
-      rootMargin: '0px',
-      threshold: 0.5,
+      rootMargin: '-100px 0px -40% 0px',
+      threshold: 0,
     };
 
     const observerCallback: IntersectionObserverCallback = (entries) => {
       if (isScrolling.current) return;
+
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          const index = sections.findIndex((s) => s.id === entry.target.id);
-          if (index !== -1) {
-            setActiveSectionIndex(index);
-          }
+            const index = sections.findIndex((s) => s.id === entry.target.id);
+            if (index !== -1) {
+                setActiveSectionIndex(index);
+            }
         }
       });
     };
