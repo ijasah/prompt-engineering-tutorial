@@ -1,112 +1,122 @@
 // src/components/AdvancedTopKDemo.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTypewriter } from '@/hooks/use-typewriter';
 import { Badge } from './ui/badge';
-import { ListOrdered } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { ListOrdered, BookCopy } from 'lucide-react';
+import { TokenChart, type TokenData } from './TokenChart';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
-const focusedSentences = [
-    "The king ruled his kingdom with a just and fair hand.",
-    "The queen wore a beautiful crown made of pure gold and jewels.",
-    "The knight, in shining armor, rode a valiant steed into the heat of battle.",
+const initialTokenData: TokenData[] = [
+  { name: 'dragons', probability: 0.30 },
+  { name: 'magic', probability: 0.25 },
+  { name: 'swords', probability: 0.15 },
+  { name: 'castles', probability: 0.12 },
+  { name: 'adventure', probability: 0.08 },
+  { name: 'mystery', probability: 0.05 },
+  { name: 'ancient', probability: 0.03 },
+  { name: 'forgotten', probability: 0.02 },
 ];
-const moderateSentences = [
-    "The castle stood majestically on the hill overlooking the valley.",
-    "A secret passage was hidden behind the grand tapestry in the hall.",
-    "The royal banquet featured a feast of roasted meats and fine wines."
-];
-const diverseSentences = [
-    "The king, a connoisseur of cosmic cartography, charted distant nebulas from his castle observatory.",
-    "The queen, a master of temporal mechanics, wove the threads of timelines into intricate tapestries.",
-    "The knight, astride a bio-luminescent griffin, patrolled the shimmering borders of reality itself.",
-];
-
 
 export const AdvancedTopKDemo = () => {
-    const [value, setValue] = useState(25);
-    const [output, setOutput] = useState('');
-    const typewriterOutput = useTypewriter(output, 20);
+    const [kValue, setKValue] = useState(3);
+    const [simulating, setSimulating] = useState(false);
+    const [selectedToken, setSelectedToken] = useState<string | null>(null);
 
-    const generateText = (k: number) => {
-        if (k < 10) return focusedSentences[Math.floor(Math.random() * focusedSentences.length)];
-        if (k < 40) return moderateSentences[Math.floor(Math.random() * moderateSentences.length)];
-        return diverseSentences[Math.floor(Math.random() * diverseSentences.length)];
-    };
+    const { topKTokens, selectedTokensText } = useMemo(() => {
+        const sortedTokens = [...initialTokenData].sort((a, b) => b.probability - a.probability);
+        const topK = sortedTokens.slice(0, kValue);
+        return { 
+            topKTokens: topK.map(t => t.name),
+            selectedTokensText: topK.map(t => `'${t.name}'`).join(', ')
+        };
+    }, [kValue]);
 
-    const handleSimulate = () => {
-        setOutput('');
-        const generated = generateText(value);
-        setOutput(generated);
-    };
-
-    const getBadgeInfo = () => {
-        if (value < 10) return { label: "FOCUSED", className: "bg-blue-500/20 text-blue-400" };
-        if (value < 40) return { label: "MODERATE", className: "bg-green-500/20 text-green-400" };
-        return { label: "DIVERSE", className: "bg-purple-500/20 text-purple-400" };
-    }
+    const chartData = useMemo(() => {
+        return initialTokenData.map(token => ({
+            ...token,
+            fill: topKTokens.includes(token.name) ? "hsl(var(--primary))" : "hsl(var(--muted))",
+        }));
+    }, [topKTokens]);
     
-    const badgeInfo = getBadgeInfo();
+    const handleSimulate = () => {
+        setSimulating(true);
+        setSelectedToken(null);
+        setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * topKTokens.length);
+            setSelectedToken(topKTokens[randomIndex]);
+            setSimulating(false);
+        }, 800);
+    };
 
     return (
         <Card className="bg-card border-border shadow-sm overflow-hidden">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-xl">
                     <ListOrdered className="w-6 h-6 text-primary" />
-                    Top-k Sampling Demo
+                    Top-k Sampling
                 </CardTitle>
-                <CardDescription>Restricts selection to the K most likely tokens. Lower values are more focused.</CardDescription>
+                <CardDescription>Restricts the model to select the next token from the K most likely candidates.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="space-y-6">
-                    <div className='space-y-4'>
-                        <div className="flex justify-between items-center">
-                            <label className="font-medium text-sm flex items-center gap-2">
-                                Top-k: <span className="font-mono text-primary">{value}</span>
-                            </label>
-                            <Badge variant="outline" className={cn("border-0 font-semibold", badgeInfo.className)}>{badgeInfo.label}</Badge>
-                        </div>
-                        <Slider
-                            value={[value]}
-                            onValueChange={(val) => setValue(val[0])}
-                            min={1}
-                            max={50}
-                            step={1}
-                        />
-                         <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Focused</span>
-                            <span>Moderate</span>
-                            <span>Diverse</span>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <p className="font-medium text-sm mb-2">Prompt:</p>
-                        <div className="p-3 bg-muted rounded-md border">
-                            <p className="font-mono text-sm text-muted-foreground">Tell me about a fantasy kingdom.</p>
-                        </div>
-                    </div>
-                    
-                    <div className="flex justify-end">
-                        <Button onClick={handleSimulate}>Generate with Top-k {value}</Button>
-                    </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-4">
+                        <Alert>
+                            <BookCopy className="h-4 w-4" />
+                            <AlertTitle>Theoretical Point</AlertTitle>
+                            <AlertDescription>
+                                Top-k sampling is a simple and effective way to control the randomness of the output. A small K (e.g., 1-5) makes the output more predictable and less prone to errors, while a large K allows for more diversity but can introduce irrelevant tokens. It's a hard cutoff that doesn't consider the actual probability distribution.
+                            </AlertDescription>
+                        </Alert>
 
-                    {output && (
-                        <div>
-                            <p className="font-medium text-sm mb-2">AI Output:</p>
-                            <div className="p-3 bg-muted rounded-md border min-h-[60px]">
-                                <p className="text-foreground whitespace-pre-wrap font-mono text-sm">{typewriterOutput}</p>
+                        <div className='space-y-4 p-4 border rounded-lg'>
+                            <div className="flex justify-between items-center">
+                                <label className="font-medium text-sm flex items-center gap-2">
+                                    Top-k Value: <span className="font-mono text-primary">{kValue}</span>
+                                </label>
+                            </div>
+                            <Slider
+                                value={[kValue]}
+                                onValueChange={(val) => setKValue(val[0])}
+                                min={1}
+                                max={initialTokenData.length}
+                                step={1}
+                            />
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                                <span>More Focused</span>
+                                <span>More Diverse</span>
                             </div>
                         </div>
-                    )}
+
+                        <div className="p-4 border rounded-lg space-y-2">
+                             <p className="font-medium text-sm">Prompt:</p>
+                             <p className="font-mono text-sm text-muted-foreground p-2 bg-muted rounded-md">The story is about a world of </p>
+                             <div className="flex justify-end">
+                                <Button onClick={handleSimulate} disabled={simulating}>
+                                    {simulating ? 'Selecting Token...' : 'Simulate Next Token'}
+                                </Button>
+                             </div>
+                        </div>
+
+                         {selectedToken && (
+                            <div className="p-4 border rounded-lg bg-primary/5">
+                                <p className="font-medium text-sm mb-2">Simulation Result:</p>
+                                <p className="text-sm text-muted-foreground">The model randomly selected a token from the top {kValue} candidates ({selectedTokensText}).</p>
+                                <p className="font-mono text-lg text-center p-4 text-primary font-bold animate-pulse">{selectedToken}</p>
+                            </div>
+                         )}
+
+                    </div>
+                    <div className="space-y-2">
+                        <p className="font-medium text-center text-sm">Next Token Probabilities</p>
+                        <p className="text-xs text-center text-muted-foreground">The top {kValue} tokens are highlighted for sampling.</p>
+                        <TokenChart data={chartData} />
+                    </div>
                 </div>
             </CardContent>
         </Card>
     );
 };
-
-    
