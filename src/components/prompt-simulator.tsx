@@ -41,7 +41,7 @@ export function PromptSimulator({ title, elements, output, explanation }: Prompt
   };
 
   return (
-    <Card className="bg-muted/50 border-dashed">
+    <Card className="bg-muted/30 border-dashed">
       <CardContent className="p-6">
         <h4 className="text-lg font-semibold text-foreground mb-4">{title}</h4>
         <div className="space-y-4 mb-4">
@@ -51,7 +51,7 @@ export function PromptSimulator({ title, elements, output, explanation }: Prompt
               {el.isCode ? (
                 <CodeBlock code={el.value} />
               ) : (
-                <p className="text-muted-foreground whitespace-pre-wrap font-mono">{el.value}</p>
+                <p className="text-muted-foreground whitespace-pre-wrap font-mono bg-background/50 p-3 rounded-md border">{el.value}</p>
               )}
             </div>
           ))}

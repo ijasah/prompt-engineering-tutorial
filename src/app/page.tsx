@@ -17,6 +17,7 @@ import {
   Shield,
   ChevronUp,
   ChevronDown,
+  Lightbulb,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -24,6 +25,7 @@ import { AdvancedTemperatureDemo } from '@/components/AdvancedTemperatureDemo';
 import { AdvancedTopPDemo } from '@/components/AdvancedTopPDemo';
 import { AdvancedTopKDemo } from '@/components/AdvancedTopKDemo';
 import { SmartPromptRefiner } from '@/components/smart-prompt-refiner';
+import { PromptSimulator } from '@/components/prompt-simulator';
 
 const sections = [
   { id: 'introduction', title: 'Introduction to Prompt Engineering', icon: <BookOpen className="h-8 w-8 text-primary" /> },
@@ -211,12 +213,47 @@ const Index = () => {
                   />
                 </div>
                 <div>
-                  <h3 className="text-xl font-semibold mb-3 text-accent">Chain-of-Thought (CoT) Prompting</h3>
-                  <p className="text-muted-foreground mb-4">
-                    Watch AI break down complex problems step-by-step, using external tools when needed.
+                  <h3 className="text-xl font-semibold mb-3 text-accent flex items-center gap-2">
+                    <Lightbulb />
+                    Chain-of-Thought (CoT) Prompting
+                  </h3>
+                  <p className="text-muted-foreground mt-2">
+                    Chain-of-Thought (CoT) prompting is an advanced technique that guides a large language model (LLM) to break down a multi-step problem into a series of intermediate reasoning steps. Instead of just asking for the final answer, you ask the model to "think step by step."
                   </p>
                 </div>
+
+                <div className="bg-muted/30 border-l-4 border-primary p-4 rounded-r-lg">
+                    <h4 className="font-semibold text-foreground mb-2">Why is CoT Effective?</h4>
+                    <p className="text-muted-foreground text-sm">
+                        It mimics a more natural human-like reasoning process, which allows the model to allocate more computational effort to problems that require more thought. This often leads to more accurate and reliable answers for complex tasks involving arithmetic, commonsense reasoning, and symbolic logic.
+                    </p>
+                </div>
+
                 <ChainOfThoughtDemo />
+
+                <div>
+                    <h4 className="font-semibold text-accent mb-3">Designing a CoT Prompt</h4>
+                    <p className="text-muted-foreground mb-4">
+                        A good CoT prompt explicitly asks the model to detail its reasoning process.
+                    </p>
+                    <PromptSimulator 
+                        title="Zero-Shot CoT Prompt Example"
+                        elements={[
+                            {
+                                label: "User Problem",
+                                value: "A juggler has 10 balls. He throws 3, drops 2, and is given 5 more. How many balls does the juggler have now?",
+                                isCode: false
+                            },
+                            {
+                                label: "Prompt to LLM",
+                                value: "A juggler has 10 balls. He throws 3, drops 2, and is given 5 more. How many balls does the juggler have now?\n\nLet's think step by step.",
+                                isCode: false
+                            }
+                        ]}
+                        output={"1. The juggler starts with 10 balls.\n2. He throws 3, which doesn't change the number he possesses. He still has 10 balls.\n3. He drops 2 balls, so he has 10 - 2 = 8 balls.\n4. He is given 5 more balls, so he has 8 + 5 = 13 balls.\n\nFinal Answer: The juggler has 13 balls."}
+                        explanation="Appending 'Let's think step by step.' is a simple yet powerful way to trigger a zero-shot CoT response."
+                    />
+                </div>
               </div>
             </Section>
 
@@ -338,5 +375,3 @@ else:
 };
 
 export default Index;
-
-    
