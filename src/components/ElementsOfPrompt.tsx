@@ -1,118 +1,101 @@
 // src/components/ElementsOfPrompt.tsx
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence, useInView } from 'framer-motion';
+import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { FileText, Lightbulb, CheckCircle } from 'lucide-react';
 
 const elements = [
-  { text: "Instructions", color: "text-blue-400" },
-  { text: "Input data", color: "text-yellow-400" },
-  { text: "Output indicator", color: "text-pink-400" },
+  { 
+    name: "Instructions", 
+    color: "bg-blue-500/20 text-blue-400 border-blue-500/30", 
+    icon: <FileText />,
+    description: "The task the model should perform. It's the 'what to do'."
+  },
+  { 
+    name: "Input data", 
+    color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30", 
+    icon: <Lightbulb />,
+    description: "The content the model works with. This provides context."
+  },
+  { 
+    name: "Output indicator", 
+    color: "bg-pink-500/20 text-pink-400 border-pink-500/30",
+    icon: <CheckCircle />,
+    description: "Guides the model's output format, starting its response."
+  },
 ];
 
 const promptParts = [
-    { text: "Classify the text into neutral, negative or positive", color: "text-blue-400", element: "Instructions" },
-    { text: "\n\nText: ", color: "text-muted-foreground", element: "Context" },
-    { text: "I think the food was okay.", color: "text-yellow-400", element: "Input data" },
-    { text: "\n\nSentiment:", color: "text-pink-400", element: "Output indicator" },
+    { text: "Classify the text into neutral, negative or positive", element: "Instructions" },
+    { text: "\n\nText: ", element: "Context" },
+    { text: "I think the food was okay.", element: "Input data" },
+    { text: "\n\nSentiment:", element: "Output indicator" },
 ];
 
+
 export const ElementsOfPrompt = () => {
-    const containerRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(containerRef, { once: true, amount: 0.5 });
-    
-    const refs = useRef<Record<string, HTMLElement | null>>({});
-    const [isMounted, setIsMounted] = useState(false);
-
-    useEffect(() => {
-        // We need to trigger a re-render once the refs are set
-        // so that the SVG lines can be calculated and drawn.
-        setIsMounted(true);
-    }, []);
-
-
-    const lineVariants = {
-        hidden: { pathLength: 0, opacity: 0 },
-        visible: (i: number) => ({
-            pathLength: 1,
-            opacity: 1,
-            transition: {
-                pathLength: { delay: i * 0.4 + 0.5, type: "spring", duration: 1.5, bounce: 0 },
-                opacity: { delay: i * 0.4 + 0.5, duration: 0.01 }
-            }
-        })
-    };
-
-    const getLinePath = (startId: string, endId: string) => {
-        const startEl = refs.current[startId];
-        const endEl = refs.current[endId];
-        const containerEl = containerRef.current;
-
-        if (!startEl || !endEl || !containerEl) return "";
-
-        const containerRect = containerEl.getBoundingClientRect();
-        const startRect = startEl.getBoundingClientRect();
-        const endRect = endEl.getBoundingClientRect();
-
-        const startX = startRect.right - containerRect.left + 10;
-        const startY = startRect.top - containerRect.top + startRect.height / 2;
-        
-        const endX = endRect.left - containerRect.left - 10;
-        const endY = endRect.top - containerRect.top + endRect.height / 2;
-
-        const controlX1 = startX + (endX - startX) * 0.25;
-        const controlX2 = startX + (endX - startX) * 0.75;
-        
-        return `M ${startX} ${startY} C ${controlX1} ${startY}, ${controlX2} ${endY}, ${endX} ${endY}`;
-    };
+    const [activeElement, setActiveElement] = useState(elements[0].name);
 
     return (
-        <div ref={containerRef} className="relative my-8 p-6 bg-muted/30 rounded-lg border">
-            <h3 className="text-xl font-semibold mb-6">Elements of a Prompt</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-                <ul className="space-y-4">
-                    {elements.map((el, i) => (
-                        <motion.li 
-                            key={el.text}
-                            className={cn("flex items-center gap-3", el.color)}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={isInView ? { opacity: 1, x: 0 } : {}}
-                            transition={{ delay: i * 0.2 }}
-                            ref={node => { refs.current[`list-${el.text}`] = node; }}
+        <div className="my-8">
+            <h3 className="text-xl font-semibold mb-6 text-center">Elements of a Prompt</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                {/* Left side: Clickable Elements */}
+                <div className="lg:col-span-1 space-y-3">
+                    {elements.map((el) => (
+                        <motion.div
+                            key={el.name}
+                            onClick={() => setActiveElement(el.name)}
+                            className={cn(
+                                "p-4 rounded-lg border-2 cursor-pointer transition-all duration-300",
+                                activeElement === el.name ? `${el.color} shadow-lg` : 'border-transparent bg-muted/50 hover:bg-muted'
+                            )}
+                            whileHover={{ scale: 1.03 }}
                         >
-                            <div className="w-2 h-2 rounded-full" style={{backgroundColor: 'currentColor'}} />
-                            <span className="font-semibold">{el.text}</span>
-                        </motion.li>
-                    ))}
-                </ul>
-                <div className="relative bg-background/50 p-6 rounded-lg border font-mono text-sm leading-relaxed whitespace-pre-wrap">
-                    {promptParts.map((part, i) => (
-                        <span key={i} ref={node => { refs.current[`prompt-${part.element}`] = node; }} className={part.color}>
-                            {part.text}
-                        </span>
+                            <div className="flex items-center gap-3 font-semibold">
+                                {el.icon}
+                                {el.name}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-2">{el.description}</p>
+                        </motion.div>
                     ))}
                 </div>
+
+                {/* Right side: Prompt Example */}
+                <div className="lg:col-span-2 bg-background/50 p-6 rounded-lg border font-mono text-sm leading-relaxed whitespace-pre-wrap min-h-[10rem] flex items-center">
+                    <p>
+                        {promptParts.map((part, i) => {
+                             const isActive = part.element === activeElement;
+                             const colorClass = elements.find(e => e.name === part.element)?.color || 'text-muted-foreground';
+                             
+                             return (
+                                <span key={i} className={cn(
+                                    "transition-all duration-300",
+                                    isActive ? `${colorClass.split(' ')[1]} font-bold` : 'text-muted-foreground'
+                                )}>
+                                    <motion.span
+                                        className={cn(
+                                            "rounded-md",
+                                            isActive && `${colorClass.split(' ')[0]}`
+                                        )}
+                                        style={{
+                                          boxDecorationBreak: 'clone',
+                                          WebkitBoxDecorationBreak: 'clone',
+                                        }}
+                                        initial={{ backgroundSize: '0% 100%' }}
+                                        animate={{ backgroundSize: isActive ? '100% 100%' : '0% 100%' }}
+                                        transition={{ duration: 0.5, ease: "easeInOut" }}
+                                    >
+                                        {part.text}
+                                    </motion.span>
+                                </span>
+                            )
+                        })}
+                    </p>
+                </div>
             </div>
-            <AnimatePresence>
-                {isInView && isMounted && (
-                    <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                        {elements.map((el, i) => (
-                             <motion.path
-                                key={el.text}
-                                d={getLinePath(`list-${el.text}`, `prompt-${el.text}`)}
-                                fill="none"
-                                stroke="hsl(var(--border))"
-                                strokeWidth="1.5"
-                                variants={lineVariants}
-                                initial="hidden"
-                                animate="visible"
-                                custom={i}
-                            />
-                        ))}
-                    </svg>
-                )}
-            </AnimatePresence>
         </div>
     );
 };
