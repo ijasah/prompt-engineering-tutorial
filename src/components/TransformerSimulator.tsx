@@ -45,31 +45,34 @@ const EmbeddingVector = ({ vector, small }: { vector: number[], small?: boolean 
 );
 
 const AttentionHead = ({ scores, activeTokens, headNum }: { scores: number[][], activeTokens: string[], headNum: number }) => (
-    <div>
-        <p className="text-xs font-mono text-center mb-2">Head {headNum + 1}</p>
-        <div className={cn("p-2 border rounded-lg bg-background/50 flex gap-2")}>
-            <div className="flex flex-col gap-1 justify-around">
+    <div className="border rounded-lg bg-background/50 p-3">
+        <p className="text-sm font-semibold text-center mb-3">Head {headNum + 1}</p>
+        <div className="flex gap-2">
+            {/* Vertical Tokens */}
+            <div className="flex flex-col gap-1 mt-6">
                 {activeTokens.map((token, i) => (
-                    <div key={i} className="text-xs font-mono text-right text-muted-foreground h-6 flex items-center">{token}</div>
+                    <div key={i} className="text-sm font-mono text-right text-muted-foreground h-8 flex items-center pr-2">{token}</div>
                 ))}
             </div>
             <div className="flex-1">
-                 <div className="flex gap-1 justify-around">
-                     {activeTokens.map((token, i) => (
-                        <div key={i} className="text-xs font-mono text-center text-muted-foreground w-6 flex-shrink-0">{token}</div>
+                {/* Horizontal Tokens */}
+                <div className="flex gap-1">
+                    {activeTokens.map((token, i) => (
+                        <div key={i} className="text-sm font-mono text-center text-muted-foreground w-8 h-6 flex-shrink-0">{token}</div>
                     ))}
                 </div>
+                {/* Attention Grid */}
                 {scores.map((row, i) => (
-                    <div key={i} className="flex gap-1 mt-1 justify-around">
+                    <div key={i} className="flex gap-1 mt-1">
                         {row.map((score, j) => (
                             <TooltipProvider key={j} delayDuration={0}>
                                 <Tooltip>
                                     <TooltipTrigger>
-                                        <div className="w-6 h-6 rounded-sm flex items-center justify-center text-white/70 text-[10px] font-mono"
+                                        <div className="w-8 h-8 rounded-sm flex items-center justify-center text-white/90 text-xs font-mono"
                                             style={{
-                                                backgroundColor: `hsla(var(--primary-hsl), ${score})`,
+                                                backgroundColor: `hsl(var(--primary-hsl) / ${score})`
                                             }}>
-                                             {score.toFixed(2)}
+                                            {score.toFixed(2)}
                                         </div>
                                     </TooltipTrigger>
                                     <TooltipContent>
@@ -240,7 +243,7 @@ export const TransformerSimulator = () => {
                             <div className="flex flex-col gap-4 bg-background/50 p-4 rounded-lg border">
                                 {step === 'attention' && (
                                      <div className={cn("transition-opacity duration-300", step === 'attention' ? 'opacity-100' : 'opacity-50')}>
-                                        <h5 className="font-semibold text-xs text-center mb-2 text-primary">Multi-Head Attention</h5>
+                                        <h5 className="font-semibold text-sm text-center mb-4 text-primary">Multi-Head Attention</h5>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {attentionScores.map((headScores, i) => (
                                                 <AttentionHead key={i} scores={headScores} activeTokens={allTokens} headNum={i} />
