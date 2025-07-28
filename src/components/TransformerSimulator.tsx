@@ -1,31 +1,34 @@
 // src/components/TransformerSimulator.tsx
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Bot, ChevronsRight, FileInput, Plus, Zap } from 'lucide-react';
+import { ArrowRight, Bot, ChevronsRight, FileInput, Plus, Zap, RefreshCw, Cpu, BrainCircuit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Input } from './ui/input';
+import { Badge } from './ui/badge';
+import { useTypewriter } from '@/hooks/use-typewriter';
 
 const initialInput = "what is ai";
-const tokens = ["what", "is", "ai"];
-const embeddingDim = 6;
-const numHeads = 2; // Simplified for visualization
+const embeddingDim = 8;
+const numHeads = 2;
 
-type SimulationStep = "idle" | "tokenized" | "embedded" | "positional" | "qkv" | "attention" | "ffn" | "output";
+type SimulationStep = "idle" | "tokenizing" | "embedding" | "positional_encoding" | "transformer_block" | "attention" | "feed_forward" | "predicting" | "appending" | "finished";
 
-const STEPS: SimulationStep[] = ["idle", "tokenized", "embedded", "positional", "qkv", "attention", "ffn", "output"];
+const STEPS: SimulationStep[] = ["idle", "tokenizing", "embedding", "positional_encoding", "transformer_block", "attention", "feed_forward", "predicting", "appending"];
 
-const stepDescriptions: Record<SimulationStep, { title: string; description: string }> = {
-    idle: { title: "Start", description: "Enter some text and click 'Start Simulation' to see how a Transformer model processes it." },
-    tokenized: { title: "Step 1: Tokenization", description: "The input text is broken down into smaller units called tokens. These can be words, subwords, or characters." },
-    embedded: { title: "Step 2: Embedding", description: "Each token is converted into a numerical vector (an 'embedding'). This vector represents the token's meaning in a high-dimensional space." },
-    positional: { title: "Step 3: Positional Encoding", description: "A positional vector is added to each embedding. This gives the model crucial information about the order of the tokens in the sequence, since the core architecture doesn't inherently process sequence order." },
-    qkv: { title: "Step 4: Query, Key, Value", description: "For each token's vector, the model creates three new vectors: a Query (Q), a Key (K), and a Value (V). These are used to calculate attention scores in the next step." },
-    attention: { title: "Step 5: Multi-Head Attention", description: "The model calculates attention scores by comparing the Query of one token to the Key of every other token. This determines how much 'focus' to place on other tokens. The scores create a weighted sum of the Value vectors, producing a new vector that is rich in contextual information." },
-    ffn: { title: "Step 6: Feed-Forward Network", description: "The output from the attention layer is passed through a simple neural network for further processing. This step helps in transforming the contextual vectors into a more refined representation." },
-    output: { title: "Step 7: Prediction", description: "Finally, the output of the transformer block is converted into a probability distribution over the entire vocabulary to predict the most likely next token." },
+const stepConfig: Record<SimulationStep, { title: string; description: string; intuition: string }> = {
+    idle: { title: "Start", description: "Enter text to see how a Transformer model processes it to generate a response, one token at a time.", intuition: "Ready" },
+    tokenizing: { title: "Step 1: Tokenization", description: "The model breaks the input text into smaller units called tokens. This is the model's vocabulary.", intuition: "Splitting Words" },
+    embedding: { title: "Step 2: Embedding", description: "Each token is converted into a numerical vector (an 'embedding'). This vector captures the token's semantic meaning.", intuition: "Capturing Meaning" },
+    positional_encoding: { title: "Step 3: Positional Encoding", description: "A vector is added to each embedding to give the model information about the order of tokens, which is crucial for understanding context.", intuition: "Adding Order" },
+    transformer_block: { title: "Step 4: Transformer Block", description: "The core of the model. The input vectors now pass through the attention and processing layers.", intuition: "Processing Context" },
+    attention: { title: "Step 5: Multi-Head Attention", description: "The model weighs the importance of each token in relation to every other token. This allows it to 'focus' on the most relevant parts of the input to understand context.", intuition: "Weighing Importance" },
+    feed_forward: { title: "Step 6: Feed-Forward Network", description: "The context-rich vectors from the attention layer are passed through a neural network for further processing and refinement.", intuition: "Deeper Thinking" },
+    predicting: { title: "Step 7: Prediction", description: "The model uses the final processed vector to predict the most likely *next* token from its entire vocabulary.", intuition: "Generating Next Word" },
+    appending: { title: "Step 8: Appending (Autoregression)", description: "The newly generated token is appended to the input sequence. The entire process then repeats to generate the next token, creating a coherent response.", intuition: "Continuing the Sentence" },
+    finished: { title: "Finished", description: "The simulation has completed the generation cycles.", intuition: "Done" },
 };
 
 const EmbeddingVector = ({ vector, small }: { vector: number[], small?: boolean }) => (
@@ -34,153 +37,216 @@ const EmbeddingVector = ({ vector, small }: { vector: number[], small?: boolean 
             <div key={i}
                 className={cn("w-4 h-4 rounded-sm", small && "w-2 h-2")}
                 style={{ backgroundColor: `hsl(262, 83%, ${Math.abs(val) * 50 + 40}%)` }}
-                 title={val.toString()}
+                title={val.toFixed(2)}
             />
         ))}
     </div>
 );
 
-const AttentionHead = ({ scores, active }: { scores: number[], active: boolean }) => (
-    <div className={cn("p-2 border rounded-lg transition-all", active ? 'bg-primary/10 border-primary' : 'bg-muted/50')}>
-        <div className="flex justify-around">
-            {scores.map((s, i) => (
-                 <div key={i} className="flex flex-col items-center gap-1">
-                    <div className="text-xs font-mono">{tokens[i]}</div>
-                    <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style={{ backgroundColor: `hsl(210, 100%, ${100 - s * 100}%)`, color: s > 0.5 ? 'white' : 'black' }}>
-                        {s.toFixed(1)}
+const AttentionHead = ({ scores, activeTokens, headNum }: { scores: number[][], activeTokens: string[], headNum: number }) => (
+    <div>
+        <p className="text-xs font-mono text-center mb-1">Head {headNum + 1}</p>
+        <div className={cn("p-2 border rounded-lg bg-background/50")}>
+            <div className="flex justify-around">
+                {activeTokens.map((token, i) => (
+                    <div key={i} className="flex flex-col items-center gap-1">
+                        <div className="text-xs font-mono">{token}</div>
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                            style={{
+                                backgroundColor: `hsl(210, 100%, ${100 - (scores[i] ? scores[i][scores[i].length - 1] * 100 : 0)}%)`,
+                                color: (scores[i] ? scores[i][scores[i].length - 1] : 0) > 0.5 ? 'white' : 'black'
+                            }}>
+                            {scores[i] ? scores[i][scores[i].length - 1].toFixed(1) : '0.0'}
+                        </div>
                     </div>
-                </div>
-            ))}
+                ))}
+            </div>
+            <p className="text-xs text-muted-foreground text-center mt-2">Attention scores for the *last* token.</p>
         </div>
     </div>
 );
 
-
 export const TransformerSimulator = () => {
     const [step, setStep] = useState<SimulationStep>('idle');
     const [inputText, setInputText] = useState(initialInput);
+    const [tokens, setTokens] = useState<string[]>([]);
+    const [generatedTokens, setGeneratedTokens] = useState<string[]>([]);
+    const [predictedToken, setPredictedToken] = useState<string | null>(null);
+    const [cycle, setCycle] = useState(0);
 
     const currentStepIndex = STEPS.indexOf(step);
+    const maxCycles = 4;
+
+    const handleStart = () => {
+        setTokens(inputText.split(' ').filter(Boolean));
+        setGeneratedTokens([]);
+        setPredictedToken(null);
+        setCycle(0);
+        setStep('tokenizing');
+    };
 
     const handleNext = () => {
-        if (currentStepIndex < STEPS.length - 1) {
+        if (step === 'appending') {
+            if (cycle >= maxCycles) {
+                setStep('finished');
+                return;
+            }
+            if (predictedToken) {
+                setGeneratedTokens(prev => [...prev, predictedToken]);
+                setPredictedToken(null);
+                setStep('embedding'); // Loop back
+                setCycle(prev => prev + 1);
+            }
+        } else if (currentStepIndex < STEPS.length - 1) {
             setStep(STEPS[currentStepIndex + 1]);
         }
     };
-    
+
     const handleReset = () => {
         setStep('idle');
-    }
+        setInputText(initialInput);
+        setTokens([]);
+        setGeneratedTokens([]);
+        setPredictedToken(null);
+        setCycle(0);
+    };
 
-    const embeddings = tokens.map(() => Array.from({ length: embeddingDim }, () => parseFloat(Math.random().toFixed(2))));
-    const positionalEncodings = tokens.map(() => Array.from({ length: embeddingDim }, () => parseFloat(Math.random().toFixed(2))));
-    const finalEmbeddings = embeddings.map((emb, i) => emb.map((val, j) => parseFloat((val + positionalEncodings[i][j]).toFixed(2))));
-    
-    const attentionScores = Array.from({length: numHeads}, () => tokens.map(() => Math.random()));
-    const finalOutput = "An artificial intelligence is a system...";
+    const allTokens = useMemo(() => [...tokens, ...generatedTokens], [tokens, generatedTokens]);
+
+    const embeddings = useMemo(() => allTokens.map(() => Array.from({ length: embeddingDim }, () => Math.random() * 2 - 1)), [allTokens]);
+    const positionalEncodings = useMemo(() => allTokens.map(() => Array.from({ length: embeddingDim }, () => Math.random() * 2 - 1)), [allTokens]);
+    const finalEmbeddings = useMemo(() => embeddings.map((emb, i) => emb.map((val, j) => val + positionalEncodings[i][j])), [embeddings, positionalEncodings]);
+
+    const attentionScores = useMemo(() => {
+        return Array.from({ length: numHeads }, () =>
+            allTokens.map(() =>
+                allTokens.map(() => Math.random())
+            )
+        );
+    }, [allTokens]);
+
+    useEffect(() => {
+        if (step === 'predicting') {
+            const possibleOutputs = ['is', 'a', 'field', 'of', 'computer', 'science', 'that', 'focuses', 'on', 'creating', 'intelligent', 'systems'];
+            const nextToken = possibleOutputs[cycle % possibleOutputs.length];
+            setPredictedToken(nextToken);
+        }
+    }, [step, cycle]);
+
+    const typedDescription = useTypewriter(stepConfig[step]?.description || '', 20);
 
     return (
-        <Card className="bg-muted/30 border-dashed w-full overflow-hidden">
+        <Card className="bg-muted/20 border-dashed w-full overflow-hidden">
             <CardHeader>
-                <CardTitle>Transformer Simulation</CardTitle>
-                <CardDescription>{stepDescriptions[step].title}: {stepDescriptions[step].description}</CardDescription>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle className="flex items-center gap-2"><Cpu />Transformer Simulation</CardTitle>
+                        <CardDescription>An interactive look at how models like GPT generate responses.</CardDescription>
+                    </div>
+                    <Badge variant={step !== 'idle' ? 'default' : 'outline'} className="text-sm">
+                        {stepConfig[step]?.intuition || "Ready"}
+                    </Badge>
+                </div>
             </CardHeader>
             <CardContent className="space-y-6">
-                
-                {/* Controls */}
                 <div className="flex flex-col sm:flex-row gap-2">
-                     <Input 
-                        value={inputText} 
-                        onChange={(e) => setInputText(e.target.value)} 
-                        placeholder="Enter text to simulate"
+                    <Input
+                        value={inputText}
+                        onChange={(e) => setInputText(e.target.value)}
+                        placeholder="Enter text..."
                         disabled={step !== 'idle'}
-                        className="max-w-xs"
+                        className="max-w-xs bg-background"
                     />
                     {step === 'idle' ? (
-                        <Button onClick={() => setStep('tokenized')}>Start Simulation</Button>
+                        <Button onClick={handleStart}>Start Simulation</Button>
                     ) : (
-                         <div className='flex gap-2'>
-                             <Button onClick={handleNext} disabled={currentStepIndex === STEPS.length - 1}>Next Step <ArrowRight className="ml-2" /></Button>
-                             <Button onClick={handleReset} variant="outline">Reset</Button>
-                         </div>
+                        <div className='flex gap-2'>
+                            <Button onClick={handleNext} disabled={step === 'finished'}>
+                                Next <ArrowRight className="ml-2" />
+                            </Button>
+                            <Button onClick={handleReset} variant="outline">
+                                <RefreshCw className="mr-2" /> Reset
+                            </Button>
+                        </div>
                     )}
                 </div>
 
-                {/* Main visualization area */}
-                <div className="space-y-4 min-h-[400px]">
-                    
-                    {/* Tokenization */}
-                    <div className={cn("transition-opacity duration-500", currentStepIndex >= 1 ? 'opacity-100' : 'opacity-0')}>
-                        <h4 className="font-semibold text-sm mb-2 flex items-center"><FileInput className="mr-2 h-4 w-4 text-primary" />Input & Tokenization</h4>
-                        <div className="flex gap-2 flex-wrap bg-background/50 p-4 rounded-lg border">
-                            {tokens.map((token, i) => (
-                                <div key={i} className={cn("px-3 py-1 rounded-md bg-primary/10 text-primary font-mono transition-all duration-300", currentStepIndex >=1 ? "scale-100 opacity-100" : "scale-90 opacity-0")} style={{transitionDelay: `${i * 100}ms`}}>{token}</div>
-                            ))}
-                        </div>
-                    </div>
+                <div className="p-4 bg-background/50 rounded-lg border min-h-[5rem]">
+                    <p className="text-sm text-muted-foreground">{typedDescription}</p>
+                </div>
 
-                    {/* Embeddings & Positional */}
-                    {(currentStepIndex >= 2) && (
-                         <div className={cn("transition-opacity duration-500", currentStepIndex >= 2 ? 'opacity-100' : 'opacity-0')}>
-                            <h4 className="font-semibold text-sm mb-2 flex items-center"><Zap className="mr-2 h-4 w-4 text-primary" />Embeddings & Positional Encoding</h4>
-                            <div className="flex flex-col gap-2 bg-background/50 p-4 rounded-lg border">
-                               {tokens.map((token, i) => (
-                                   <div key={i} className={cn("flex items-center gap-2 md:gap-4 transition-all duration-500 flex-wrap", currentStepIndex >= 2 ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4')} style={{transitionDelay: `${i * 100}ms`}}>
-                                       <div className="w-16 text-right font-mono text-sm text-primary">{token}</div>
-                                       <ArrowRight size={16} className="text-muted-foreground" />
-                                       <EmbeddingVector vector={embeddings[i]} />
-                                       <div className={cn("flex items-center gap-2 md:gap-4 transition-opacity duration-300", currentStepIndex >= 3 ? 'opacity-100' : 'opacity-0')}>
-                                            <Plus size={16} className="text-muted-foreground" />
-                                            <EmbeddingVector vector={positionalEncodings[i]} />
-                                            <ChevronsRight size={16} className="text-muted-foreground" />
-                                            <EmbeddingVector vector={finalEmbeddings[i]} />
-                                       </div>
-                                   </div>
-                               ))}
-                                {currentStepIndex === 3 && (
-                                     <p className="text-xs text-muted-foreground mt-2 text-center">Token Embedding (meaning) + Positional Encoding (order) = Final Input Vector</p>
+                <div className="space-y-6 min-h-[300px]">
+                    {currentStepIndex >= 1 && (
+                        <div className={cn("transition-opacity duration-500", currentStepIndex >= 1 ? 'opacity-100' : 'opacity-0')}>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center"><FileInput className="mr-2 h-4 w-4 text-primary" />Input Sequence</h4>
+                            <div className="flex gap-2 flex-wrap bg-background/50 p-4 rounded-lg border">
+                                {tokens.map((token, i) => (
+                                    <div key={`initial-${i}`} className={cn("px-3 py-1 rounded-md bg-primary/10 text-primary font-mono")}>{token}</div>
+                                ))}
+                                {generatedTokens.map((token, i) => (
+                                    <div key={`generated-${i}`} className={cn("px-3 py-1 rounded-md bg-accent/20 text-accent-foreground font-mono animate-in fade-in")}>{token}</div>
+                                ))}
+                                {(step === 'predicting' || step === 'appending' || step === 'finished') && predictedToken && (
+                                     <div className={cn("px-3 py-1 rounded-md bg-green-500/20 text-green-400 font-mono animate-pulse")}>{predictedToken}</div>
                                 )}
                             </div>
                         </div>
                     )}
 
-                    {/* Transformer Block */}
-                    {(currentStepIndex >= 4) && (
-                         <div className={cn("transition-opacity duration-500", currentStepIndex >= 4 ? 'opacity-100' : 'opacity-0')}>
-                            <h4 className="font-semibold text-sm mb-2 flex items-center"><Bot className="mr-2 h-4 w-4 text-primary" />Transformer Block</h4>
-                            <div className="flex flex-col gap-4 bg-background/50 p-4 rounded-lg border">
-                                <div className={cn("transition-opacity duration-300", currentStepIndex >= 5 ? 'opacity-100' : 'opacity-50')}>
-                                    <h5 className={cn("font-semibold text-xs text-center mb-2 transition-colors", currentStepIndex >= 5 ? 'text-primary' : 'text-muted-foreground')}>Multi-Head Attention</h5>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {attentionScores.map((scores, i) => (
-                                             <div key={i} className="flex flex-col items-center gap-1">
-                                                <p className="text-xs font-mono">Head {i+1}</p>
-                                                <AttentionHead key={i} scores={scores} active={currentStepIndex >= 5} />
-                                             </div>
-                                        ))}
+                    {(step === 'embedding' || step === 'positional_encoding') && (
+                        <div className={cn("transition-opacity duration-500", currentStepIndex >= 2 ? 'opacity-100' : 'opacity-0')}>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center"><Zap className="mr-2 h-4 w-4 text-primary" />Vector Representation</h4>
+                            <div className="flex flex-col gap-2 bg-background/50 p-4 rounded-lg border">
+                                {allTokens.map((token, i) => (
+                                    <div key={i} className="flex items-center gap-2 md:gap-4 flex-wrap">
+                                        <div className="w-20 text-right font-mono text-sm text-primary">{token}</div>
+                                        <ArrowRight size={16} className="text-muted-foreground" />
+                                        <EmbeddingVector vector={embeddings[i]} />
+                                        <div className={cn("flex items-center gap-2 md:gap-4 transition-opacity duration-300", step === 'positional_encoding' ? 'opacity-100' : 'opacity-0')}>
+                                            <Plus size={16} className="text-muted-foreground" />
+                                            <EmbeddingVector vector={positionalEncodings[i]} />
+                                            <ChevronsRight size={16} className="text-muted-foreground" />
+                                            <EmbeddingVector vector={finalEmbeddings[i]} />
+                                        </div>
                                     </div>
-                                    {currentStepIndex === 5 && <p className="text-xs text-muted-foreground mt-2 text-center">For the token 'ai', Head 1 is paying high attention to 'what'. Head 2 is focusing on 'is'.</p>}
-                                </div>
-                                <div className={cn("transition-opacity duration-300", currentStepIndex >= 6 ? 'opacity-100' : 'opacity-50')}>
-                                    <h5 className={cn("font-semibold text-xs text-center mb-2 transition-colors", currentStepIndex >= 6 ? 'text-primary' : 'text-muted-foreground')}>Feed-Forward Network</h5>
-                                     <div className="flex justify-center">
-                                          <div className="p-4 bg-muted rounded-lg w-full md:w-1/2 flex justify-center items-center">
-                                            <p className="text-sm text-muted-foreground">Further processing on contextual vectors</p>
-                                          </div>
-                                     </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
                     )}
-                    
-                    {/* Output */}
-                     {(currentStepIndex >= 7) && (
-                         <div className={cn("transition-opacity duration-500", currentStepIndex >= 7 ? 'opacity-100' : 'opacity-0')}>
-                            <h4 className="font-semibold text-sm mb-2 flex items-center"><Zap className="mr-2 h-4 w-4 text-primary" />Prediction</h4>
-                            <div className="flex flex-col gap-2 bg-background/50 p-4 rounded-lg border items-center">
-                               <p className="text-sm text-muted-foreground">The model predicts the next token with the highest probability.</p>
-                               <p className="font-mono text-lg text-primary animate-pulse p-4 bg-primary/10 rounded-md">is</p>
-                               <p className="text-sm text-muted-foreground mt-2">So the generated sequence starts with: <span className="font-mono text-primary">what is ai is...</span></p>
+
+                    {currentStepIndex >= 4 && step !== 'appending' && (
+                        <div className={cn("transition-opacity duration-500", currentStepIndex >= 4 ? 'opacity-100' : 'opacity-0')}>
+                            <h4 className="font-semibold text-sm mb-2 flex items-center"><BrainCircuit className="mr-2 h-4 w-4 text-primary" />Generation Cycle {cycle + 1}</h4>
+                            <div className="flex flex-col gap-4 bg-background/50 p-4 rounded-lg border">
+                                {step === 'attention' && (
+                                     <div className={cn("transition-opacity duration-300", step === 'attention' ? 'opacity-100' : 'opacity-50')}>
+                                        <h5 className="font-semibold text-xs text-center mb-2 text-primary">Multi-Head Attention</h5>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {attentionScores.map((headScores, i) => (
+                                                <AttentionHead key={i} scores={headScores} activeTokens={allTokens} headNum={i} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                 {step === 'feed_forward' && (
+                                    <div className={cn("transition-opacity duration-300", step === 'feed_forward' ? 'opacity-100' : 'opacity-50')}>
+                                        <h5 className="font-semibold text-xs text-center mb-2 text-primary">Feed-Forward Network</h5>
+                                        <div className="flex justify-center">
+                                            <div className="p-4 bg-muted rounded-lg w-full md:w-1/2 flex justify-center items-center">
+                                                <p className="text-sm text-muted-foreground">Contextual vectors are processed further</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                                 {(step === 'predicting') && predictedToken && (
+                                    <div className={cn("transition-opacity duration-500", step === 'predicting' ? 'opacity-100' : 'opacity-0')}>
+                                        <h5 className="font-semibold text-xs text-center mb-2 text-primary">Prediction</h5>
+                                        <div className="flex flex-col gap-2 items-center">
+                                            <p className="text-sm text-muted-foreground">The model predicts the most likely next token.</p>
+                                            <p className="font-mono text-lg text-primary animate-pulse p-4 bg-primary/10 rounded-md">{predictedToken}</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
