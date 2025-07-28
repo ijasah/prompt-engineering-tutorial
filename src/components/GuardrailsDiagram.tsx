@@ -162,13 +162,15 @@ export const GuardrailsDiagram = () => {
                             </feMerge>
                         </filter>
                     </defs>
-                    {guardrailCategories.map((category, index) => (
-                        <ConnectingLine
-                            key={index}
-                            isHovered={hoveredIndex === index}
-                            category={category}
-                        />
-                    ))}
+                    <g>
+                        {guardrailCategories.map((category, index) => (
+                            <ConnectingLine
+                                key={index}
+                                isHovered={hoveredIndex === index}
+                                category={category}
+                            />
+                        ))}
+                    </g>
                 </svg>
 
                 {guardrailCategories.map((category, index) => (
