@@ -46,28 +46,25 @@ const EmbeddingVector = ({ vector, small }: { vector: number[], small?: boolean 
 
 const AttentionHead = ({ scores, activeTokens, headNum }: { scores: number[][], activeTokens: string[], headNum: number }) => (
     <div className="border rounded-lg bg-background/50 p-3">
-        <p className="text-sm font-semibold text-center mb-3">Head {headNum + 1}</p>
+        <p className="text-sm font-semibold text-center mb-3 text-primary">Head {headNum + 1}</p>
         <div className="flex gap-2">
-            {/* Vertical Tokens */}
-            <div className="flex flex-col gap-1 mt-6">
+            <div className="flex flex-col gap-1 mt-6 pt-1">
                 {activeTokens.map((token, i) => (
                     <div key={i} className="text-sm font-mono text-right text-muted-foreground h-8 flex items-center pr-2">{token}</div>
                 ))}
             </div>
             <div className="flex-1">
-                {/* Horizontal Tokens */}
                 <div className="flex gap-1">
                     {activeTokens.map((token, i) => (
-                        <div key={i} className="text-sm font-mono text-center text-muted-foreground w-8 h-6 flex-shrink-0">{token}</div>
+                        <div key={i} className="text-sm font-mono text-center text-muted-foreground w-8 h-6 flex-shrink-0 flex items-end justify-center">{token}</div>
                     ))}
                 </div>
-                {/* Attention Grid */}
                 {scores.map((row, i) => (
                     <div key={i} className="flex gap-1 mt-1">
                         {row.map((score, j) => (
                             <TooltipProvider key={j} delayDuration={0}>
                                 <Tooltip>
-                                    <TooltipTrigger>
+                                    <TooltipTrigger asChild>
                                         <div className="w-8 h-8 rounded-sm flex items-center justify-center text-white/90 text-xs font-mono"
                                             style={{
                                                 backgroundColor: `hsl(var(--primary-hsl) / ${score})`
