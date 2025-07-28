@@ -275,7 +275,9 @@ const Index = () => {
                 </div>
                 <InteractiveExample
                   title="Context-based Q&A"
-                  prompt="Context: OKT3 is sourced from mice and used in transplants.\nQuestion: What is OKT3 originally sourced from?\nAnswer:"
+                  prompt={`Context: OKT3 is sourced from mice and used in transplants.
+Question: What is OKT3 originally sourced from?
+Answer:`}
                   expectedOutput="Mice."
                   description="Extract specific information from context"
                 />
@@ -284,7 +286,9 @@ const Index = () => {
                 </div>
                 <InteractiveExample
                   title="AI Assistant Role"
-                  prompt="Role: AI Research Assistant\nHuman: What is AI?\nAI:"
+                  prompt={`Role: AI Research Assistant
+Human: What is AI?
+AI:`}
                   expectedOutput="Artificial Intelligence (AI) is a branch of computer science focused on creating intelligent systems."
                   description="Demonstrate role-playing capabilities"
                 />
@@ -308,7 +312,9 @@ const Index = () => {
                   />
                   <InteractiveExample
                     title="Few-shot Classification"
-                    prompt="Text: 'I love this!' Emotion: Positive.\nText: 'This is bad.' Emotion: Negative.\nText: 'I am happy.' Emotion:"
+                    prompt={`Text: 'I love this!' Emotion: Positive.
+Text: 'This is bad.' Emotion: Negative.
+Text: 'I am happy.' Emotion:`}
                     expectedOutput="Positive"
                     description="Examples provided for context"
                   />
@@ -347,11 +353,18 @@ const Index = () => {
                             },
                             {
                                 label: "Prompt to LLM",
-                                value: "A juggler has 10 balls. He throws 3, drops 2, and is given 5 more. How many balls does the juggler have now?\n\nLet's think step by step.",
+                                value: `A juggler has 10 balls. He throws 3, drops 2, and is given 5 more. How many balls does the juggler have now?
+
+Let's think step by step.`,
                                 isCode: false
                             }
                         ]}
-                        output={"1. The juggler starts with 10 balls.\n2. He throws 3, which doesn't change the number he possesses. He still has 10 balls.\n3. He drops 2 balls, so he has 10 - 2 = 8 balls.\n4. He is given 5 more balls, so he has 8 + 5 = 13 balls.\n\nFinal Answer: The juggler has 13 balls."}
+                        output={`1. The juggler starts with 10 balls.
+2. He throws 3, which doesn't change the number he possesses. He still has 10 balls.
+3. He drops 2 balls, so he has 10 - 2 = 8 balls.
+4. He is given 5 more balls, so he has 8 + 5 = 13 balls.
+
+Final Answer: The juggler has 13 balls.`}
                         explanation="Appending 'Let's think step by step.' is a simple yet powerful way to trigger a zero-shot CoT response."
                     />
                 </div>
@@ -545,5 +558,3 @@ const Index = () => {
 };
 
 export default Index;
-
-    
