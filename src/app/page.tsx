@@ -223,11 +223,24 @@ const Index = () => {
       <Hero />
       <div id="content" className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-          <div className="lg:col-span-1">
-            <TableOfContents activeSectionId={sections[activeSectionIndex]?.id} onLinkClick={(id) => {
-              const index = sections.findIndex(s => s.id === id);
-              scrollToSection(index);
-            }}/>
+          <div className="lg:col-span-1 relative">
+             <div className="sticky top-24">
+                <TableOfContents activeSectionId={sections[activeSectionIndex]?.id} onLinkClick={(id) => {
+                const index = sections.findIndex(s => s.id === id);
+                scrollToSection(index);
+                }}/>
+             </div>
+             <div className="hidden lg:block fixed bottom-8">
+                <a 
+                    href="https://www.linkedin.com/in/ijas-ah/?originalSubdomain=in" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors duration-300"
+                    title="Created by IJAS A H"
+                >
+                    <span className="font-bold">IA</span>
+                </a>
+             </div>
           </div>
           <main className="lg:col-span-3 space-y-24">
             <Section id="how-transformers-work" title="Transformers - Recap" icon={<Cpu className="h-8 w-8 text-primary" />}>
