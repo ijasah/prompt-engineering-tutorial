@@ -86,7 +86,7 @@ const applications = [
       exampleOutput: "This interaction forms the basis of a chatbot."
     },
     {
-      icon: <BrainCircuit className="w-8 h-8 text-primary" />,
+      icon: <BrainCircuit className="w-8 w-8 text-primary" />,
       title: "AI Agents",
       description: "Autonomous agents that perform tasks.",
       examplePrompt: "Tool: Calculator\nGoal: What is 15% of $300?\nAction: Calculator(300 * 0.15)",
@@ -163,7 +163,7 @@ const Index = () => {
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [showAuthorCredit, setShowAuthorCredit] = useState(false);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
-  const contentRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
   const isScrolling = useRef(false);
 
   useEffect(() => {
@@ -194,16 +194,18 @@ const Index = () => {
   };
 
   useEffect(() => {
-    const mainContentObserver = new IntersectionObserver(
+    const heroObserver = new IntersectionObserver(
         (entries) => {
             entries.forEach((entry) => {
-                setShowAuthorCredit(entry.isIntersecting);
+                // Show the author credit when the hero is NOT intersecting (i.e., scrolled past)
+                setShowAuthorCredit(!entry.isIntersecting);
             });
         },
-        { threshold: 0.1 }
+        { threshold: 0.1 } // 10% of the hero needs to be visible/invisible to trigger
     );
-    if (contentRef.current) {
-        mainContentObserver.observe(contentRef.current);
+
+    if (heroRef.current) {
+        heroObserver.observe(heroRef.current);
     }
     
     const sectionObserverOptions = {
@@ -230,16 +232,18 @@ const Index = () => {
 
     return () => {
       elements.forEach(el => sectionObserver.unobserve(el!));
-      if (contentRef.current) {
-        mainContentObserver.unobserve(contentRef.current);
+      if (heroRef.current) {
+        heroObserver.unobserve(heroRef.current);
       }
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Hero />
-      <div id="content" ref={contentRef} className="container mx-auto px-4 py-16">
+      <div ref={heroRef}>
+        <Hero />
+      </div>
+      <div id="content" className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           <div className="lg:col-span-1 relative">
              <div className="sticky top-24">
