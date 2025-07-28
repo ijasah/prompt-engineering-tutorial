@@ -127,7 +127,7 @@ export const TransformerSimulator = () => {
 
     useEffect(() => {
         if (step === 'predicting') {
-            const possibleOutputs = ['is', 'a', 'field', 'of', 'computer', 'science'];
+            const possibleOutputs = ['a', 'field', 'of', 'computer', 'science'];
             const nextToken = possibleOutputs[cycle % possibleOutputs.length];
             setPredictedToken(nextToken);
         }
