@@ -17,7 +17,7 @@ export const Hero = () => {
   };
   
   return (
-    <header className="relative bg-background py-20 text-center h-[90vh] flex flex-col items-center justify-center">
+    <header className="relative bg-background py-20 text-center h-screen flex flex-col items-center justify-center">
       <div className="absolute top-4 right-4 z-10">
           <ThemeToggle />
       </div>
