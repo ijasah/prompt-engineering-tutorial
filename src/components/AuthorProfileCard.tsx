@@ -18,7 +18,7 @@ export const AuthorProfileCard = () => {
         />
         <div>
           <h4 className="font-bold text-lg">IJAS A H</h4>
-          <p className="text-sm text-muted-foreground">AI & Full-Stack Developer</p>
+          <p className="text-sm text-muted-foreground">AI Engineer</p>
         </div>
       </div>
       <a
