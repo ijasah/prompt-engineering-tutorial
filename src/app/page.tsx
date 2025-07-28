@@ -1,3 +1,4 @@
+
 // src/app/page.tsx
 'use client';
 
@@ -20,6 +21,7 @@ import {
   ChevronDown,
   Lightbulb,
   Cpu,
+  RefreshCw,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -30,9 +32,11 @@ import { PromptSimulator } from '@/components/prompt-simulator';
 import { GuardrailSimulator } from '@/components/GuardrailSimulator';
 import { CodeBlock } from '@/components/ui/code-block';
 import { TransformerSimulator } from '@/components/TransformerSimulator';
+import { Card, CardContent } from '@/components/ui/card';
 
 const sections = [
   { id: 'how-transformers-work', title: 'How Transformers Work', icon: <Cpu className="h-8 w-8 text-primary" /> },
+  { id: 'transformers-recap', title: 'Transformers - Recap', icon: <RefreshCw className="h-8 w-8 text-primary" /> },
   { id: 'introduction', title: 'Introduction to Prompt Engineering', icon: <BookOpen className="h-8 w-8 text-primary" /> },
   { id: 'core-concepts', title: 'Core Concepts and Parameters', icon: <Brain className="h-8 w-8 text-primary" /> },
   { id: 'designing-prompts', title: 'Designing Prompts for Specific Tasks', icon: <Target className="h-8 w-8 text-primary" /> },
@@ -119,6 +123,52 @@ const Index = () => {
                         Transformers are the fundamental architecture behind large language models like GPT. They are designed to understand context in text by using a mechanism called 'attention'. This simulation will walk you through the core concepts of how a transformer processes input to generate output.
                     </p>
                     <TransformerSimulator />
+                </div>
+            </Section>
+
+            <Section id="transformers-recap" title="How Transformers Work - Recap" icon={<RefreshCw className="h-8 w-8 text-primary" />}>
+                <div className="space-y-6">
+                  <p className="text-muted-foreground">
+                    Here's a quick summary of the key stages in a Transformer model that we just simulated. Understanding this flow is the foundation of prompt engineering.
+                  </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card className='bg-muted/30'>
+                      <CardContent className="p-4">
+                        <h4 className='font-semibold text-primary'>1. Tokenization</h4>
+                        <p className="text-sm text-muted-foreground">The input text is broken down into smaller pieces called tokens. This is the vocabulary the model understands.</p>
+                      </CardContent>
+                    </Card>
+                    <Card className='bg-muted/30'>
+                      <CardContent className="p-4">
+                        <h4 className='font-semibold text-primary'>2. Embedding</h4>
+                        <p className="text-sm text-muted-foreground">Each token is converted into a numerical vector (embedding) that captures its semantic meaning.</p>
+                      </CardContent>
+                    </Card>
+                    <Card className='bg-muted/30'>
+                      <CardContent className="p-4">
+                        <h4 className='font-semibold text-primary'>3. Positional Encoding</h4>
+                        <p className="text-sm text-muted-foreground">Information about the position of each token in the sequence is added to the embedding to preserve word order.</p>
+                      </CardContent>
+                    </Card>
+                    <Card className='bg-muted/30'>
+                      <CardContent className="p-4">
+                        <h4 className='font-semibold text-primary'>4. Attention Mechanism</h4>
+                        <p className="text-sm text-muted-foreground">The model weighs the importance of all other tokens in the sequence for the current token, allowing it to focus on relevant context.</p>
+                      </CardContent>
+                    </Card>
+                     <Card className='bg-muted/30'>
+                      <CardContent className="p-4">
+                        <h4 className='font-semibold text-primary'>5. Feed-Forward Network</h4>
+                        <p className="text-sm text-muted-foreground">The contextualized embeddings are passed through a neural network for further processing.</p>
+                      </CardContent>
+                    </Card>
+                     <Card className='bg-muted/30'>
+                      <CardContent className="p-4">
+                        <h4 className='font-semibold text-primary'>6. Prediction & Autoregression</h4>
+                        <p className="text-sm text-muted-foreground">A final probability is calculated for all possible next tokens. The chosen token is appended to the input, and the process repeats.</p>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
             </Section>
 
@@ -472,3 +522,5 @@ def no_profanity(value: str, metadata: dict):
 };
 
 export default Index;
+
+    
