@@ -38,6 +38,7 @@ import { CodeBlock } from '@/components/ui/code-block';
 import { TransformerSimulator } from '@/components/TransformerSimulator';
 import { Card, CardContent } from '@/components/ui/card';
 import { ElementsOfPrompt } from '@/components/ElementsOfPrompt';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const sections = [
   { id: 'how-transformers-work', title: 'Transformers - Recap', icon: <Cpu className="h-8 w-8 text-primary" /> },
@@ -53,24 +54,76 @@ const applications = [
     {
       icon: <PenSquare className="w-8 h-8 text-primary" />,
       title: "Text generation",
-      description: "Writing articles or creative content"
+      description: "Writing articles or creative content.",
+      examplePrompt: "Write a haiku about a robot dreaming.",
+      exampleOutput: "Metal gears softly turn,\nElectric sheep fill the void,\nSilent dreams awaken."
     },
     {
       icon: <HelpCircle className="w-8 h-8 text-primary" />,
       title: "Question answering",
-      description: "Extracting specific information"
+      description: "Extracting specific information.",
+      examplePrompt: "Context: The Eiffel Tower is in Paris.\nQuestion: Where is the Eiffel Tower?",
+      exampleOutput: "The Eiffel Tower is in Paris."
     },
     {
       icon: <Code2 className="w-8 h-8 text-primary" />,
       title: "Code generation",
-      description: "Assisting developers in writing code"
+      description: "Assisting developers in writing code.",
+      examplePrompt: "Create a Python function to add two numbers.",
+      exampleOutput: "def add(a, b):\n  return a + b"
     },
     {
       icon: <Bot className="w-8 h-8 text-primary" />,
       title: "Conversational AI",
-      description: "Developing interactive assistants"
+      description: "Developing interactive assistants.",
+      examplePrompt: "Human: Hi there!\nAI: Hello! How can I help you today?",
+      exampleOutput: "This interaction forms the basis of a chatbot."
     }
 ];
+
+const ApplicationCard = ({ app }: { app: typeof applications[0] }) => {
+    const [isHovered, setIsHovered] = useState(false);
+
+    return (
+        <div 
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            className="group relative p-6 rounded-lg bg-muted/30 hover:bg-muted/50 transition-all duration-300 transform hover:-translate-y-1 h-48 flex flex-col justify-between"
+        >
+            <div className="absolute top-0 left-0 w-full h-full rounded-lg bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            <div className="relative">
+                <div className="mb-4">{app.icon}</div>
+                <h4 className="text-lg font-bold text-primary">{app.title}</h4>
+            </div>
+            <div className="relative overflow-hidden h-20">
+                <AnimatePresence>
+                    {!isHovered && (
+                        <motion.p
+                            initial={{ opacity: 1, y: 0 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20, transition: { duration: 0.2 } }}
+                            className="text-muted-foreground mt-1 absolute"
+                        >
+                            {app.description}
+                        </motion.p>
+                    )}
+                    {isHovered && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0, transition: { delay: 0.2, duration: 0.3 } }}
+                            exit={{ opacity: 0, y: 20, transition: { duration: 0.2 } }}
+                            className="text-xs font-mono text-muted-foreground space-y-2 absolute"
+                        >
+                            <p className="text-primary/70">Prompt: "{app.examplePrompt}"</p>
+                            <p>Output: "{app.exampleOutput}"</p>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
+        </div>
+    );
+};
+
 
 const Index = () => {
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
@@ -227,25 +280,10 @@ const Index = () => {
                     <h3 className="text-xl font-semibold text-foreground">Applications</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {applications.map((app, index) => (
-                        <div key={index} className="group relative p-6 rounded-lg bg-muted/30 hover:bg-muted/50 transition-all duration-300 transform hover:-translate-y-1">
-                            <div className="absolute top-0 left-0 w-full h-full rounded-lg bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                            <div className="relative">
-                                <div className="mb-4">{app.icon}</div>
-                                <h4 className="text-lg font-bold text-primary">{app.title}</h4>
-                                <p className="text-muted-foreground mt-1">{app.description}</p>
-                            </div>
-                        </div>
+                          <ApplicationCard key={index} app={app} />
                         ))}
                     </div>
                 </div>
-                <InteractiveExample
-                  title="Creative Writing Example"
-                  prompt={`Generate a haiku about nature.`}
-                  expectedOutput={`Trees sway in the breeze,
-Whispering secrets they hold,
-Nature's calm embrace.`}
-                  description="Explore creative text generation"
-                />
               </div>
             </Section>
 
@@ -559,3 +597,5 @@ Final Answer: The juggler has 13 balls.`}
 };
 
 export default Index;
+
+    
