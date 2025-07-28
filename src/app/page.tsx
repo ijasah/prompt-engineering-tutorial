@@ -43,6 +43,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { ElementsOfPrompt } from '@/components/ElementsOfPrompt';
 import { AnimatePresence, motion } from 'framer-motion';
 import { RolePlayingDemo } from '@/components/RolePlayingDemo';
+import { GuardrailsDiagram } from '@/components/GuardrailsDiagram';
 
 const sections = [
   { id: 'how-transformers-work', title: 'Transformers - Recap', icon: <Cpu className="h-8 w-8 text-primary" /> },
@@ -520,14 +521,7 @@ Final Answer: The juggler has 13 balls.`}
                   Guardrails in AI refer to a set of rules, validations, and protective mechanisms designed to ensure that artificial intelligence systems operate safely, ethically, and in alignment with human values. As AI models, especially large language models (LLMs), become increasingly capable and widely adopted, the importance of incorporating guardrails into their design and deployment has grown significantly.
                 </p>
 
-                <Image 
-                  src="https://media.datacamp.com/cms/google/ad_4nxesil5iw5ln22uvd_5il1untmmqtlclvna48tfkbctfkii__le8bbhbs8mvgwzx2qxrtpdhh-etae7mjxfuxjxuux-_vatjzqj307t0ah_cthtjfgkbg5kyaf1yblhtj9qxmfjscy1smuhlyiio.png"
-                  alt="LLM Guardrails Diagram"
-                  width={800}
-                  height={450}
-                  className="rounded-lg border shadow-md"
-                  data-ai-hint="data visualization"
-                />
+                <GuardrailsDiagram />
 
                 <div>
                   <h3 className="text-xl font-semibold mb-3 text-foreground">Why Guardrails Are Important</h3>
