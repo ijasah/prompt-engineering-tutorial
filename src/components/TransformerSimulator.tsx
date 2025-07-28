@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { useTypewriter } from '@/hooks/use-typewriter';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 const initialInput = "what is ai?";
 const embeddingDim = 8;
@@ -45,26 +46,44 @@ const EmbeddingVector = ({ vector, small }: { vector: number[], small?: boolean 
 
 const AttentionHead = ({ scores, activeTokens, headNum }: { scores: number[][], activeTokens: string[], headNum: number }) => (
     <div>
-        <p className="text-xs font-mono text-center mb-1">Head {headNum + 1}</p>
-        <div className={cn("p-2 border rounded-lg bg-background/50")}>
-            <div className="flex justify-around">
+        <p className="text-xs font-mono text-center mb-2">Head {headNum + 1}</p>
+        <div className={cn("p-2 border rounded-lg bg-background/50 flex gap-2")}>
+            <div className="flex flex-col gap-1 justify-around">
                 {activeTokens.map((token, i) => (
-                    <div key={i} className="flex flex-col items-center gap-1">
-                        <div className="text-xs font-mono">{token}</div>
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
-                            style={{
-                                backgroundColor: `hsl(210, 100%, ${100 - (scores[i] ? scores[i][scores[i].length - 1] * 100 : 0)}%)`,
-                                color: (scores[i] ? scores[i][scores[i].length - 1] : 0) > 0.5 ? 'white' : 'black'
-                            }}>
-                            {scores[i] ? scores[i][scores[i].length - 1].toFixed(1) : '0.0'}
-                        </div>
+                    <div key={i} className="text-xs font-mono text-right text-muted-foreground h-6 flex items-center">{token}</div>
+                ))}
+            </div>
+            <div className="flex-1">
+                 <div className="flex gap-1 justify-around">
+                     {activeTokens.map((token, i) => (
+                        <div key={i} className="text-xs font-mono text-center text-muted-foreground w-6 flex-shrink-0">{token}</div>
+                    ))}
+                </div>
+                {scores.map((row, i) => (
+                    <div key={i} className="flex gap-1 mt-1 justify-around">
+                        {row.map((score, j) => (
+                            <TooltipProvider key={j} delayDuration={0}>
+                                <Tooltip>
+                                    <TooltipTrigger>
+                                        <div className="w-6 h-6 rounded-sm"
+                                            style={{
+                                                backgroundColor: `hsla(var(--primary-hsl), ${score})`,
+                                            }}>
+                                        </div>
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                        <p className="text-xs">'{activeTokens[i]}' attends to '{activeTokens[j]}' with score {score.toFixed(2)}</p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+                        ))}
                     </div>
                 ))}
             </div>
-            <p className="text-xs text-muted-foreground text-center mt-2">Attention scores for the *last* token.</p>
         </div>
     </div>
 );
+
 
 export const TransformerSimulator = () => {
     const [step, setStep] = useState<SimulationStep>('idle');
