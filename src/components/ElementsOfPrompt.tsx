@@ -21,10 +21,18 @@ const promptParts = [
 ];
 
 export const ElementsOfPrompt = () => {
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(containerRef, { once: true, amount: 0.5 });
     
-    const [refs, setRefs] = useState<Record<string, HTMLDivElement | null>>({});
+    const refs = useRef<Record<string, HTMLDivElement | null>>({});
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        // We need to trigger a re-render once the refs are set
+        // so that the SVG lines can be calculated and drawn.
+        setIsMounted(true);
+    }, []);
+
 
     const lineVariants = {
         hidden: { pathLength: 0, opacity: 0 },
@@ -39,8 +47,8 @@ export const ElementsOfPrompt = () => {
     };
 
     const getLinePath = (startId: string, endId: string) => {
-        const startEl = refs[startId];
-        const endEl = refs[endId];
+        const startEl = refs.current[startId];
+        const endEl = refs.current[endId];
         const containerEl = containerRef.current;
 
         if (!startEl || !endEl || !containerEl) return "";
@@ -71,21 +79,21 @@ export const ElementsOfPrompt = () => {
                             animate={isInView ? { opacity: 1, x: 0 } : {}}
                             transition={{ delay: i * 0.2 }}
                         >
-                            <div ref={node => setRefs(prev => ({...prev, [`list-${el.text}`]: node}))} className="w-2 h-2 rounded-full" style={{backgroundColor: 'currentColor'}} />
+                            <div ref={node => { refs.current[`list-${el.text}`] = node; }} className="w-2 h-2 rounded-full" style={{backgroundColor: 'currentColor'}} />
                             <span className="font-semibold">{el.text}</span>
                         </motion.li>
                     ))}
                 </ul>
                 <div className="relative bg-background/50 p-6 rounded-lg border font-mono text-sm leading-relaxed whitespace-pre-wrap">
                     {promptParts.map((part, i) => (
-                        <span key={i} ref={node => setRefs(prev => ({...prev, [`prompt-${part.element}`]: node}))} className={part.color}>
+                        <span key={i} ref={node => { refs.current[`prompt-${part.element}`] = node; }} className={part.color}>
                             {part.text}
                         </span>
                     ))}
                 </div>
             </div>
             <AnimatePresence>
-                {isInView && (
+                {isInView && isMounted && (
                     <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
                         <motion.path
                             d={getLinePath("list-Instructions", "prompt-Instructions")}
