@@ -22,6 +22,10 @@ import {
   Lightbulb,
   Cpu,
   RefreshCw,
+  PenSquare,
+  HelpCircle,
+  Code2,
+  Bot,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -43,6 +47,29 @@ const sections = [
   { id: 'advanced-techniques', title: 'Advanced Techniques', icon: <Settings className="h-8 w-8 text-primary" /> },
   { id: 'risks', title: 'Risks in Prompt Engineering', icon: <AlertTriangle className="h-8 w-8 text-destructive" /> },
   { id: 'guardrails', title: 'LLM Guardrails', icon: <Shield className="h-8 w-8 text-primary" /> },
+];
+
+const applications = [
+    {
+      icon: <PenSquare className="w-5 h-5 text-primary" />,
+      title: "Text generation:",
+      description: "Writing articles or creative content"
+    },
+    {
+      icon: <HelpCircle className="w-5 h-5 text-primary" />,
+      title: "Question answering:",
+      description: "Extracting specific information"
+    },
+    {
+      icon: <Code2 className="w-5 h-5 text-primary" />,
+      title: "Code generation:",
+      description: "Assisting developers in writing code"
+    },
+    {
+      icon: <Bot className="w-5 h-5 text-primary" />,
+      title: "Conversational AI:",
+      description: "Developing interactive assistants"
+    }
 ];
 
 const Index = () => {
@@ -196,14 +223,21 @@ const Index = () => {
                   expectedOutput="Photosynthesis converts sunlight into energy for plants."
                   description="Try this basic summarization task"
                 />
-                <div>
-                  <h4 className="text-lg font-semibold mb-3 text-foreground">Applications</h4>
-                  <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                    <li><strong>Text generation:</strong> Writing articles or creative content</li>
-                    <li><strong>Question answering:</strong> Extracting specific information</li>
-                    <li><strong>Code generation:</strong> Assisting developers in writing code</li>
-                    <li><strong>Conversational AI:</strong> Developing interactive assistants</li>
-                  </ul>
+                <div className="space-y-4">
+                    <h3 className="text-xl font-semibold text-foreground">Applications</h3>
+                    <div className="space-y-3">
+                        {applications.map((app, index) => (
+                        <div key={index} className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
+                            <div className="flex-shrink-0 mt-1">{app.icon}</div>
+                            <div className='flex-1'>
+                                <p className="text-foreground">
+                                    <strong className="font-semibold">{app.title}</strong>
+                                    <span className="text-muted-foreground"> {app.description}</span>
+                                </p>
+                            </div>
+                        </div>
+                        ))}
+                    </div>
                 </div>
                 <InteractiveExample
                   title="Creative Writing Example"
