@@ -80,10 +80,6 @@ export const ElementsOfPrompt = () => {
                                         isActive ? "text-foreground" : "text-muted-foreground",
                                         isActive && activeElementData ? activeElementData.colorClass : ""
                                     )}
-                                    style={{
-                                      boxDecorationBreak: 'clone',
-                                      WebkitBoxDecorationBreak: 'clone',
-                                    }}
                                 >
                                     {part.text}
                                 </motion.span>
