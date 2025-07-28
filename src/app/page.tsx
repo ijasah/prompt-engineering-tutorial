@@ -251,9 +251,9 @@ const Index = () => {
                   const index = sections.findIndex(s => s.id === id);
                   scrollToSection(index);
                   }}/>
-                  <div className="mt-12">
-                    <AuthorCredit show={showAuthorCredit} />
-                  </div>
+              </div>
+               <div className="fixed bottom-8">
+                <AuthorCredit show={showAuthorCredit} />
               </div>
             </div>
             <main className="lg:col-span-3 space-y-24">
