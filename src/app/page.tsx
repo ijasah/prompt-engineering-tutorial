@@ -51,23 +51,23 @@ const sections = [
 
 const applications = [
     {
-      icon: <PenSquare className="w-5 h-5 text-primary" />,
-      title: "Text generation:",
+      icon: <PenSquare className="w-8 h-8 text-primary" />,
+      title: "Text generation",
       description: "Writing articles or creative content"
     },
     {
-      icon: <HelpCircle className="w-5 h-5 text-primary" />,
-      title: "Question answering:",
+      icon: <HelpCircle className="w-8 h-8 text-primary" />,
+      title: "Question answering",
       description: "Extracting specific information"
     },
     {
-      icon: <Code2 className="w-5 h-5 text-primary" />,
-      title: "Code generation:",
+      icon: <Code2 className="w-8 h-8 text-primary" />,
+      title: "Code generation",
       description: "Assisting developers in writing code"
     },
     {
-      icon: <Bot className="w-5 h-5 text-primary" />,
-      title: "Conversational AI:",
+      icon: <Bot className="w-8 h-8 text-primary" />,
+      title: "Conversational AI",
       description: "Developing interactive assistants"
     }
 ];
@@ -225,15 +225,14 @@ const Index = () => {
                 />
                 <div className="space-y-4">
                     <h3 className="text-xl font-semibold text-foreground">Applications</h3>
-                    <div className="space-y-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {applications.map((app, index) => (
-                        <div key={index} className="flex items-start gap-4 p-3 rounded-lg hover:bg-muted/50 transition-colors">
-                            <div className="flex-shrink-0 mt-1">{app.icon}</div>
-                            <div className='flex-1'>
-                                <p className="text-foreground">
-                                    <strong className="font-semibold">{app.title}</strong>
-                                    <span className="text-muted-foreground"> {app.description}</span>
-                                </p>
+                        <div key={index} className="group relative p-6 rounded-lg bg-muted/30 hover:bg-muted/50 transition-all duration-300 transform hover:-translate-y-1">
+                            <div className="absolute top-0 left-0 w-full h-full rounded-lg bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                            <div className="relative">
+                                <div className="mb-4">{app.icon}</div>
+                                <h4 className="text-lg font-bold text-primary">{app.title}</h4>
+                                <p className="text-muted-foreground mt-1">{app.description}</p>
                             </div>
                         </div>
                         ))}
@@ -241,8 +240,10 @@ const Index = () => {
                 </div>
                 <InteractiveExample
                   title="Creative Writing Example"
-                  prompt="Generate a haiku about nature."
-                  expectedOutput="Trees sway in the breeze,\nWhispering secrets they hold,\nNature's calm embrace."
+                  prompt={`Generate a haiku about nature.`}
+                  expectedOutput={`Trees sway in the breeze,
+Whispering secrets they hold,
+Nature's calm embrace.`}
                   description="Explore creative text generation"
                 />
               </div>
