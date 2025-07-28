@@ -2,9 +2,10 @@
 "use client";
 
 import { cn } from '@/lib/utils';
-import { BookOpen, Brain, Target, Settings, AlertTriangle, Shield, Lightbulb } from 'lucide-react';
+import { BookOpen, Brain, Target, Settings, AlertTriangle, Shield, Lightbulb, Cpu } from 'lucide-react';
 
 const sections = [
+  { id: 'how-transformers-work', title: 'How Transformers Work', icon: <Cpu className="w-4 h-4" /> },
   { id: 'introduction', title: 'Introduction', icon: <BookOpen className="w-4 h-4" /> },
   { id: 'core-concepts', title: 'Core Concepts', icon: <Brain className="w-4 h-4" /> },
   { id: 'designing-prompts', title: 'Designing Prompts', icon: <Target className="w-4 h-4" /> },

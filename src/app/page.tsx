@@ -19,6 +19,7 @@ import {
   ChevronUp,
   ChevronDown,
   Lightbulb,
+  Cpu,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -28,8 +29,10 @@ import { AdvancedTopKDemo } from '@/components/AdvancedTopKDemo';
 import { PromptSimulator } from '@/components/prompt-simulator';
 import { GuardrailSimulator } from '@/components/GuardrailSimulator';
 import { CodeBlock } from '@/components/ui/code-block';
+import { TransformerSimulator } from '@/components/TransformerSimulator';
 
 const sections = [
+  { id: 'how-transformers-work', title: 'How Transformers Work', icon: <Cpu className="h-8 w-8 text-primary" /> },
   { id: 'introduction', title: 'Introduction to Prompt Engineering', icon: <BookOpen className="h-8 w-8 text-primary" /> },
   { id: 'core-concepts', title: 'Core Concepts and Parameters', icon: <Brain className="h-8 w-8 text-primary" /> },
   { id: 'designing-prompts', title: 'Designing Prompts for Specific Tasks', icon: <Target className="h-8 w-8 text-primary" /> },
@@ -110,6 +113,15 @@ const Index = () => {
             }}/>
           </div>
           <main className="lg:col-span-3 space-y-24">
+            <Section id="how-transformers-work" title="How Transformers Work" icon={<Cpu className="h-8 w-8 text-primary" />}>
+                <div className="space-y-6">
+                    <p className="text-muted-foreground">
+                        Transformers are the fundamental architecture behind large language models like GPT. They are designed to understand context in text by using a mechanism called 'attention'. This simulation will walk you through the core concepts of how a transformer processes input to generate output.
+                    </p>
+                    <TransformerSimulator />
+                </div>
+            </Section>
+
              <Section id="introduction" title="Introduction to Prompt Engineering" icon={<BookOpen className="h-8 w-8 text-primary" />}>
               <div className="space-y-6">
                 <div>
