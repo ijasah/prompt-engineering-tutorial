@@ -32,8 +32,8 @@ const elements = [
 
 const promptParts = [
     { text: "Classify the text into neutral, negative or positive", element: "Instructions" },
-    { text: "\n\nText: I think the food was okay.", element: "Input data" },
-    { text: "\n\nSentiment:", element: "Output indicator" },
+    { text: "Text: I think the food was okay.", element: "Input data" },
+    { text: "Sentiment:", element: "Output indicator" },
 ];
 
 
@@ -66,26 +66,27 @@ export const ElementsOfPrompt = () => {
                 </div>
 
                 {/* Right side: Prompt Example */}
-                <div className="bg-background/50 p-6 rounded-lg border font-mono text-sm leading-relaxed whitespace-pre-wrap min-h-[16rem] flex items-center justify-center">
-                    <p>
+                <div className="bg-background/50 p-6 rounded-lg border font-mono text-sm leading-relaxed min-h-[16rem] flex flex-col justify-center">
+                    <div>
                         {promptParts.map((part, i) => {
                              const isActive = part.element === activeElement;
                              const activeElementData = elements.find(e => e.name === activeElement);
                              
                              return (
-                                <motion.span
+                                <motion.div
                                     key={i}
                                     className={cn(
                                         "p-1 transition-colors duration-300 rounded-sm",
+                                        i === 1 ? 'my-4' : '', // Add margin for the middle element
                                         isActive ? "text-foreground" : "text-muted-foreground",
                                         isActive && activeElementData ? activeElementData.colorClass : ""
                                     )}
                                 >
                                     {part.text}
-                                </motion.span>
+                                </motion.div>
                             )
                         })}
-                    </p>
+                    </div>
                 </div>
             </div>
         </div>
