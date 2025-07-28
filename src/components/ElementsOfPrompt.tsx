@@ -32,14 +32,14 @@ const elements = [
 
 const promptParts = [
     { text: "Classify the text into neutral, negative or positive", element: "Instructions" },
-    { text: "\n\nText: ", element: "Context" }, // Context isn't a clickable element, so it won't be highlighted.
-    { text: "I think the food was okay.", element: "Input data" },
-    { text: "\n\nSentiment:", element: "Output indicator" },
+    { text: "\n\nText: I think the food was okay.", element: "Input data" },
+    { text: "\n\n", element: "Context" },
+    { text: "Sentiment:", element: "Output indicator" },
 ];
 
 
 export const ElementsOfPrompt = () => {
-    const [activeElement, setActiveElement] = useState(elements[1].name);
+    const [activeElement, setActiveElement] = useState(elements[0].name);
 
     return (
         <div className="my-8">
@@ -77,7 +77,7 @@ export const ElementsOfPrompt = () => {
                                 <motion.span
                                     key={i}
                                     className={cn(
-                                        "p-1 transition-colors duration-300",
+                                        "p-1 transition-colors duration-300 rounded-sm",
                                         isActive ? "text-foreground" : "text-muted-foreground",
                                         isActive && activeElementData ? activeElementData.colorClass : ""
                                     )}
