@@ -10,7 +10,7 @@ import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { useTypewriter } from '@/hooks/use-typewriter';
 
-const initialInput = "what is ai";
+const initialInput = "what is ai?";
 const embeddingDim = 8;
 const numHeads = 2;
 
