@@ -15,7 +15,7 @@ const elements = [
 
 const promptParts = [
     { text: "Classify the text into neutral, negative or positive", color: "text-blue-400", element: "Instructions" },
-    { text: "\n\nText: ", color: "text-gray-400", element: "Context" },
+    { text: "\n\nText: ", color: "text-muted-foreground", element: "Context" },
     { text: "I think the food was okay.", color: "text-yellow-400", element: "Input data" },
     { text: "\n\nSentiment:", color: "text-pink-400", element: "Output indicator" },
 ];
@@ -24,7 +24,7 @@ export const ElementsOfPrompt = () => {
     const containerRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(containerRef, { once: true, amount: 0.5 });
     
-    const refs = useRef<Record<string, HTMLDivElement | null>>({});
+    const refs = useRef<Record<string, HTMLElement | null>>({});
     const [isMounted, setIsMounted] = useState(false);
 
     useEffect(() => {
@@ -53,17 +53,19 @@ export const ElementsOfPrompt = () => {
 
         if (!startEl || !endEl || !containerEl) return "";
 
-        const containerRect = (containerEl as HTMLElement).getBoundingClientRect();
+        const containerRect = containerEl.getBoundingClientRect();
         const startRect = startEl.getBoundingClientRect();
         const endRect = endEl.getBoundingClientRect();
 
         const startX = startRect.right - containerRect.left + 10;
         const startY = startRect.top - containerRect.top + startRect.height / 2;
         
-        const endX = endRect.left - containerRect.left + (endRect.width / 2);
-        const endY = endRect.top - containerRect.top;
+        const endX = endRect.left - containerRect.left - 10;
+        const endY = endRect.top - containerRect.top + endRect.height / 2;
 
-        return `M ${startX} ${startY} L ${startX + 20} ${startY} L ${endX} ${endY}`;
+        const controlX = startX + (endX - startX) / 2;
+
+        return `M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}`;
     };
 
     return (
@@ -74,13 +76,14 @@ export const ElementsOfPrompt = () => {
                     {elements.map((el, i) => !el.isHidden && (
                         <motion.li 
                             key={el.text}
-                            className={cn("flex items-center gap-3", el.color)}
+                            className={cn("flex items-center gap-3 font-semibold", el.color)}
                             initial={{ opacity: 0, x: -20 }}
                             animate={isInView ? { opacity: 1, x: 0 } : {}}
                             transition={{ delay: i * 0.2 }}
+                            ref={node => { refs.current[`list-${el.text}`] = node; }}
                         >
-                            <div ref={node => { refs.current[`list-${el.text}`] = node; }} className="w-2 h-2 rounded-full" style={{backgroundColor: 'currentColor'}} />
-                            <span className="font-semibold">{el.text}</span>
+                            <div className="w-2 h-2 rounded-full" style={{backgroundColor: 'currentColor'}} />
+                            <span>{el.text}</span>
                         </motion.li>
                     ))}
                 </ul>
@@ -95,39 +98,25 @@ export const ElementsOfPrompt = () => {
             <AnimatePresence>
                 {isInView && isMounted && (
                     <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                        <motion.path
-                            d={getLinePath("list-Instructions", "prompt-Instructions")}
-                            fill="none"
-                            stroke="hsl(var(--foreground))"
-                            strokeWidth="1.5"
-                            strokeDasharray="4 4"
-                            variants={lineVariants}
-                            initial="hidden"
-                            animate="visible"
-                            custom={0}
-                        />
-                         <motion.path
-                            d={getLinePath("list-Input data", "prompt-Input data")}
-                            fill="none"
-                            stroke="hsl(var(--foreground))"
-                            strokeWidth="1.5"
-                            strokeDasharray="4 4"
-                            variants={lineVariants}
-                            initial="hidden"
-                            animate="visible"
-                            custom={1}
-                        />
-                         <motion.path
-                            d={getLinePath("list-Output indicator", "prompt-Output indicator")}
-                            fill="none"
-                            stroke="hsl(var(--foreground))"
-                            strokeWidth="1.5"
-                            strokeDasharray="4 4"
-                            variants={lineVariants}
-                            initial="hidden"
-                            animate="visible"
-                            custom={2}
-                        />
+                        <defs>
+                            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 1}} />
+                                <stop offset="100%" style={{stopColor: 'hsl(var(--accent))', stopOpacity: 1}} />
+                            </linearGradient>
+                        </defs>
+                        {elements.map((el, i) => !el.isHidden && (
+                             <motion.path
+                                key={el.text}
+                                d={getLinePath(`list-${el.text}`, `prompt-${el.text}`)}
+                                fill="none"
+                                stroke="hsl(var(--border))"
+                                strokeWidth="1.5"
+                                variants={lineVariants}
+                                initial="hidden"
+                                animate="visible"
+                                custom={i}
+                            />
+                        ))}
                     </svg>
                 )}
             </AnimatePresence>
