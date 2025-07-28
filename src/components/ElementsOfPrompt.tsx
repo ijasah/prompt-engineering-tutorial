@@ -82,7 +82,7 @@ export const ElementsOfPrompt = () => {
                                           WebkitBoxDecorationBreak: 'clone',
                                         }}
                                         animate={{ 
-                                            backgroundColor: isActive ? activeColor.replace('bg-','hsl(var(--')).replace('-500/20',')') : 'rgba(0,0,0,0)'
+                                            backgroundColor: isActive && part.element === activeElement ? `hsl(var(--${activeColor.split('-')[1]}-500-hsl) / 0.2)` : 'rgba(0,0,0,0)'
                                         }}
                                         transition={{ duration: 0.5, ease: "easeInOut" }}
                                     >
