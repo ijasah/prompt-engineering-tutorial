@@ -2,13 +2,11 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useInView } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { useInView } from 'framer-motion';
 
 const elements = [
   { text: "Instructions", color: "text-blue-400" },
-  { text: "Context", color: "text-gray-400", isHidden: true }, // Context is implicit here
   { text: "Input data", color: "text-yellow-400" },
   { text: "Output indicator", color: "text-pink-400" },
 ];
@@ -40,8 +38,8 @@ export const ElementsOfPrompt = () => {
             pathLength: 1,
             opacity: 1,
             transition: {
-                pathLength: { delay: i * 0.5, type: "spring", duration: 1.5, bounce: 0 },
-                opacity: { delay: i * 0.5, duration: 0.01 }
+                pathLength: { delay: i * 0.4 + 0.5, type: "spring", duration: 1.5, bounce: 0 },
+                opacity: { delay: i * 0.4 + 0.5, duration: 0.01 }
             }
         })
     };
@@ -63,9 +61,10 @@ export const ElementsOfPrompt = () => {
         const endX = endRect.left - containerRect.left - 10;
         const endY = endRect.top - containerRect.top + endRect.height / 2;
 
-        const controlX = startX + (endX - startX) / 2;
-
-        return `M ${startX} ${startY} C ${controlX} ${startY}, ${controlX} ${endY}, ${endX} ${endY}`;
+        const controlX1 = startX + (endX - startX) * 0.25;
+        const controlX2 = startX + (endX - startX) * 0.75;
+        
+        return `M ${startX} ${startY} C ${controlX1} ${startY}, ${controlX2} ${endY}, ${endX} ${endY}`;
     };
 
     return (
@@ -73,17 +72,17 @@ export const ElementsOfPrompt = () => {
             <h3 className="text-xl font-semibold mb-6">Elements of a Prompt</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
                 <ul className="space-y-4">
-                    {elements.map((el, i) => !el.isHidden && (
+                    {elements.map((el, i) => (
                         <motion.li 
                             key={el.text}
-                            className={cn("flex items-center gap-3 font-semibold", el.color)}
+                            className={cn("flex items-center gap-3", el.color)}
                             initial={{ opacity: 0, x: -20 }}
                             animate={isInView ? { opacity: 1, x: 0 } : {}}
                             transition={{ delay: i * 0.2 }}
                             ref={node => { refs.current[`list-${el.text}`] = node; }}
                         >
                             <div className="w-2 h-2 rounded-full" style={{backgroundColor: 'currentColor'}} />
-                            <span>{el.text}</span>
+                            <span className="font-semibold">{el.text}</span>
                         </motion.li>
                     ))}
                 </ul>
@@ -98,13 +97,7 @@ export const ElementsOfPrompt = () => {
             <AnimatePresence>
                 {isInView && isMounted && (
                     <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                        <defs>
-                            <linearGradient id="line-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" style={{stopColor: 'hsl(var(--primary))', stopOpacity: 1}} />
-                                <stop offset="100%" style={{stopColor: 'hsl(var(--accent))', stopOpacity: 1}} />
-                            </linearGradient>
-                        </defs>
-                        {elements.map((el, i) => !el.isHidden && (
+                        {elements.map((el, i) => (
                              <motion.path
                                 key={el.text}
                                 d={getLinePath(`list-${el.text}`, `prompt-${el.text}`)}
