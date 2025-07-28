@@ -65,9 +65,9 @@ const AttentionHead = ({ scores, activeTokens, headNum }: { scores: number[][], 
                             <TooltipProvider key={j} delayDuration={0}>
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <div className="w-8 h-8 rounded-sm flex items-center justify-center text-white/90 text-xs font-mono"
+                                        <div className="w-8 h-8 rounded-sm flex items-center justify-center text-primary-foreground/90 text-xs font-mono"
                                             style={{
-                                                backgroundColor: `hsl(var(--primary-hsl) / ${score})`
+                                                backgroundColor: `hsl(var(--primary) / ${score})`
                                             }}>
                                             {score.toFixed(2)}
                                         </div>
