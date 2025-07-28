@@ -75,7 +75,7 @@ export const TokenChart = ({ data }: TokenChartProps) => {
                     tick={{ fill: 'hsl(var(--muted-foreground))' }}
                 />
                 <Tooltip
-                    cursor={{ fill: 'hsla(var(--muted), 0.5)' }}
+                    cursor={false}
                     content={<CustomTooltip />}
                 />
                 <Bar dataKey="probability" radius={[0, 4, 4, 0]}>
