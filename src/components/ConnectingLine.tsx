@@ -2,77 +2,65 @@
 "use client";
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { useMemo } from 'react';
+
+type GuardrailCategory = {
+  name: string;
+  position: { top: string; left?: string; right?: string; transform?: string };
+  lineColor: string;
+};
 
 type ConnectingLineProps = {
   isHovered: boolean;
-  isMobile: boolean;
-  cardPosition: { top: string; left?: string; right?: string; transform: string };
-  index: number;
-  colorClass: string;
+  category: GuardrailCategory;
 };
 
-export const ConnectingLine = ({ isHovered, isMobile, cardPosition, index, colorClass }: ConnectingLineProps) => {
+export const ConnectingLine = ({ isHovered, category }: ConnectingLineProps) => {
   const lineVariants = {
     hidden: { pathLength: 0, opacity: 0 },
     visible: {
       pathLength: 1,
       opacity: 1,
-      transition: { duration: 1, ease: "easeInOut" }
+      transition: { duration: 1, ease: "easeInOut", delay: 0.5 }
     }
   };
 
-  // Simplified paths for mobile
-  if (isMobile) {
+  const pathD = useMemo(() => {
+    const { position } = category;
+    const startX = 50;
     const startY = 50;
-    const endY = (20 * index) + 10;
-    const d = `M 50 ${startY} L 50 ${endY}`;
-    return (
-       <motion.path
-          d={d}
-          variants={lineVariants}
-          className={cn("stroke-[3] transition-all duration-300", isHovered ? colorClass : "stroke-border")}
-          style={{ filter: isHovered ? `drop-shadow(0 0 5px currentColor)` : 'none' }}
-          vectorEffect="non-scaling-stroke"
-        />
-    )
-  }
 
-  const isRight = index >= 3;
-  const localIndex = isRight ? index - 3 : index;
-  
-  const startX = 50;
-  const startY = 50;
-  
-  const endX = isRight ? 72 : 28;
-  const midX1 = isRight ? 60 : 40;
-  
-  let endY, midY;
+    let endX, endY, midX, midY;
 
-  switch(localIndex) {
-      case 0: // Top
-          endY = 10;
-          midY = 30;
-          break;
-      case 1: // Middle
-          endY = 50;
-          midY = 50;
-          break;
-      case 2: // Bottom
-      default:
-          endY = 90;
-          midY = 70;
-          break;
-  }
+    const top = parseFloat(position.top);
 
-  const d = `M ${startX} ${startY} C ${midX1} ${startY}, ${midX1} ${midY}, ${endX} ${endY}`;
+    if (position.left) { // Left side cards
+      const left = parseFloat(position.left);
+      endX = left + 14; 
+      endY = top + (top > 80 ? 5 : 10);
+      midX = (startX + endX) / 2 + 10;
+      midY = (startY + endY) / 2 - 10;
+    } else { // Right side cards
+      const right = parseFloat(position.right || '0');
+      endX = 100 - right - 14;
+      endY = top + (top > 60 ? 5 : 10);
+      midX = (startX + endX) / 2 - 10;
+      midY = (startY + endY) / 2 + 10;
+    }
+    
+    return `M ${startX},${startY} C ${midX},${startY} ${midX},${midY} ${endX},${endY}`;
+  }, [category]);
   
   return (
     <motion.path
-      d={d}
-      fill="none"
+      d={pathD}
       variants={lineVariants}
-      className={cn("stroke-[3] transition-all duration-300", isHovered ? colorClass : "stroke-border")}
-      style={{ filter: isHovered ? `drop-shadow(0 0 8px currentColor)` : 'none' }}
+      className={cn("transition-all duration-300", isHovered ? category.lineColor : "stroke-border")}
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      style={{
+        filter: isHovered ? 'url(#glow)' : 'none',
+      }}
       vectorEffect="non-scaling-stroke"
     />
   );

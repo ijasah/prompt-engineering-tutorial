@@ -1,11 +1,11 @@
 // src/components/GuardrailsDiagram.tsx
 "use client";
 
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Lock, ShieldCheck, FileCheck, BrainCircuit, Bot, Languages } from 'lucide-react';
+import React, { useState } from 'react';
 import { ConnectingLine } from './ConnectingLine';
-import React from 'react';
 
 const guardrailCategories = [
     {
@@ -15,6 +15,7 @@ const guardrailCategories = [
       glow: "hover:shadow-[0_0_20px_theme(colors.red.500/50%)]",
       lineColor: "stroke-red-500/70",
       items: ["Inappropriate Content", "Offensive Language", "Prompt Injection", "Sensitive Content"],
+      position: { top: '0%', left: '10%' },
     },
     {
       name: "Response & Relevance",
@@ -23,6 +24,7 @@ const guardrailCategories = [
       glow: "hover:shadow-[0_0_20px_theme(colors.blue.500/50%)]",
       lineColor: "stroke-blue-500/70",
       items: ["Relevance Validation", "Fact-Checking", "URL Validation", "Prompt Adherence"],
+      position: { top: '55%', left: '0%' },
     },
     {
       name: "Language Quality",
@@ -31,6 +33,7 @@ const guardrailCategories = [
       glow: "hover:shadow-[0_0_20px_theme(colors.green.500/50%)]",
       lineColor: "stroke-green-500/70",
       items: ["Quality Grading", "Translation Accuracy", "Redundancy Check", "Readability"],
+      position: { top: '100%', left: '15%', transform: 'translateY(-100%)' },
     },
     {
         name: "Logic & Functionality",
@@ -39,6 +42,7 @@ const guardrailCategories = [
         glow: "hover:shadow-[0_0_20px_theme(colors.purple.500/50%)]",
         lineColor: "stroke-purple-500/70",
         items: ["SQL Validation", "API Spec Check", "Logical Consistency", "JSON Formatting"],
+        position: { top: '10%', right: '5%' },
     },
     {
       name: "Content Validation",
@@ -47,6 +51,7 @@ const guardrailCategories = [
       glow: "hover:shadow-[0_0_20px_theme(colors.orange.400/50%)]",
       lineColor: "stroke-orange-400/70",
       items: ["Competitor Blocking", "Price Validation", "Source Verification", "Gibberish Detection"],
+      position: { top: '80%', right: '0%', transform: 'translateY(-100%)' },
     },
 ];
 
@@ -65,83 +70,75 @@ const itemVariants = {
   visible: { opacity: 1, scale: 1, transition: { type: 'spring', stiffness: 100 } },
 };
 
-const cardPositions = [
-    // Left column
-    { top: '0%', left: '0%', transform: 'translate(0, 0)' },
-    { top: '50%', left: '5%', transform: 'translate(0, -50%)' },
-    { top: '100%', left: '0%', transform: 'translate(0, -100%)' },
-    // Right column
-    { top: '0%', right: '0%', transform: 'translate(0, 0)' },
-    { top: '50%', right: '5%', transform: 'translate(0, -50%)' },
-    { top: '100%', right: '0%', transform: 'translate(0, -100%)' },
-];
+const sublistVariants = {
+    hidden: { opacity: 0, height: 0, marginTop: 0 },
+    visible: { 
+        opacity: 1, 
+        height: 'auto', 
+        marginTop: '0.75rem',
+        transition: {
+            staggerChildren: 0.05,
+            when: "beforeChildren",
+        } 
+    }
+};
 
-const mobileCardPositions = [
-    { top: '0%', left: '50%', transform: 'translateX(-50%)' },
-    { top: 'calc(20% + 20px)', left: '50%', transform: 'translateX(-50%)' },
-    { top: 'calc(40% + 40px)', left: '50%', transform: 'translateX(-50%)' },
-    { top: 'calc(60% + 60px)', left: '50%', transform: 'translateX(-50%)' },
-    { top: 'calc(80% + 80px)', left: '50%', transform: 'translateX(-50%)' },
-];
+const subItemVariants = {
+    hidden: { opacity: 0, y: -10 },
+    visible: { opacity: 1, y: 0 }
+};
 
-
-const GuardrailCard = ({ category, isHovered, onHoverStart, onHoverEnd, style }: { category: typeof guardrailCategories[0], isHovered: boolean, onHoverStart: () => void, onHoverEnd: () => void, style: React.CSSProperties }) => (
+const GuardrailCard = ({ category, isHovered, onHoverStart, onHoverEnd }: { category: typeof guardrailCategories[0], isHovered: boolean, onHoverStart: () => void, onHoverEnd: () => void }) => (
     <motion.div
-        className="absolute w-[28%] min-w-[200px] md:min-w-[240px]"
-        style={style}
+        className="absolute w-[28%] min-w-[240px] md:min-w-[280px]"
+        style={{ ...category.position }}
         variants={itemVariants}
         onHoverStart={onHoverStart}
         onHoverEnd={onHoverEnd}
+        layout
     >
-        <div
+        <motion.div
+            layout
             className={cn(
-                "group p-4 md:p-6 rounded-2xl border-2 transition-all duration-300 w-full h-full",
+                "group p-4 md:p-6 rounded-2xl border-2 transition-all duration-300 w-full",
                 "backdrop-blur-sm",
                 category.color,
                 isHovered ? category.glow : '',
-                isHovered ? 'scale-105' : 'scale-100',
+                isHovered ? 'shadow-2xl' : 'shadow-md',
             )}
         >
-            <div className="flex items-center gap-3 font-bold mb-3">
+            <motion.div layout className="flex items-center gap-3 font-bold">
                 {category.icon}
                 <span className="text-sm md:text-base">{category.name}</span>
-            </div>
-            <ul className="space-y-1.5 text-xs md:text-sm text-muted-foreground list-none pl-2">
-                {category.items.map((item) => (
-                    <li key={item} className="relative before:content-['–'] before:absolute before:-left-3 before:top-0">
-                        {item}
-                    </li>
-                ))}
-            </ul>
-        </div>
+            </motion.div>
+            <AnimatePresence>
+            {isHovered && (
+                <motion.ul
+                    variants={sublistVariants}
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    className="space-y-1.5 text-xs md:text-sm text-muted-foreground list-none pl-2 overflow-hidden"
+                >
+                    {category.items.map((item) => (
+                        <motion.li key={item} variants={subItemVariants} className="relative before:content-['–'] before:absolute before:-left-3 before:top-0">
+                            {item}
+                        </motion.li>
+                    ))}
+                </motion.ul>
+            )}
+            </AnimatePresence>
+        </motion.div>
     </motion.div>
 );
 
 export const GuardrailsDiagram = () => {
-    const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
-    const [isMobile, setIsMobile] = React.useState(false);
-
-    React.useEffect(() => {
-        const checkMobile = () => setIsMobile(window.innerWidth < 768);
-        checkMobile();
-        window.addEventListener('resize', checkMobile);
-        return () => window.removeEventListener('resize', checkMobile);
-    }, []);
-
-    const leftCategories = guardrailCategories.slice(0, 3);
-    const rightCategories = guardrailCategories.slice(3);
-
-    const getCardPositions = (index: number) => {
-        if (isMobile) return mobileCardPositions[index];
-        const isRight = index >= 3;
-        const localIndex = isRight ? index - 3 : index;
-        return cardPositions[localIndex + (isRight ? 3 : 0)];
-    }
+    const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     return (
         <div className="w-full my-12 flex items-center justify-center p-4">
             <motion.div 
-                className="relative w-full max-w-7xl h-[600px] md:h-[400px]"
+                className="relative w-full max-w-5xl h-[500px]"
                 variants={containerVariants}
                 initial="hidden"
                 whileInView="visible"
@@ -155,43 +152,34 @@ export const GuardrailsDiagram = () => {
                     <h3 className="text-lg md:text-xl font-bold text-center">LLM Guardrails</h3>
                 </motion.div>
                 
-                <svg className="absolute inset-0 w-full h-full overflow-visible">
+                 <svg className="absolute inset-0 w-full h-full overflow-visible" fill="none">
+                    <defs>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3.5" result="coloredBlur" />
+                            <feMerge>
+                                <feMergeNode in="coloredBlur" />
+                                <feMergeNode in="SourceGraphic" />
+                            </feMerge>
+                        </filter>
+                    </defs>
                     {guardrailCategories.map((category, index) => (
                         <ConnectingLine
                             key={index}
                             isHovered={hoveredIndex === index}
-                            isMobile={isMobile}
-                            cardPosition={getCardPositions(index)}
-                            index={index}
-                            colorClass={category.lineColor}
+                            category={category}
                         />
                     ))}
                 </svg>
 
-                {leftCategories.map((category, index) => (
+                {guardrailCategories.map((category, index) => (
                     <GuardrailCard
                         key={category.name}
                         category={category}
                         isHovered={hoveredIndex === index}
                         onHoverStart={() => setHoveredIndex(index)}
                         onHoverEnd={() => setHoveredIndex(null)}
-                        style={isMobile ? mobileCardPositions[index] : cardPositions[index]}
                     />
                 ))}
-                
-                {rightCategories.map((category, index) => {
-                    const globalIndex = index + 3;
-                    return (
-                        <GuardrailCard
-                            key={category.name}
-                            category={category}
-                            isHovered={hoveredIndex === globalIndex}
-                            onHoverStart={() => setHoveredIndex(globalIndex)}
-                            onHoverEnd={() => setHoveredIndex(null)}
-                            style={isMobile ? mobileCardPositions[globalIndex] : cardPositions[globalIndex]}
-                        />
-                    )
-                })}
             </motion.div>
         </div>
     );
