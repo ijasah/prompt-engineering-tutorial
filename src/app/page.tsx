@@ -252,6 +252,9 @@ const Index = () => {
                 scrollToSection(index);
                 }}/>
              </div>
+             <div className="fixed bottom-8">
+                <AuthorCredit show={showAuthorCredit} />
+            </div>
           </div>
           <main className="lg:col-span-3 space-y-24">
             <Section id="how-transformers-work" title="Transformers - Recap" icon={<Cpu className="h-8 w-8 text-primary" />}>
@@ -620,9 +623,6 @@ Final Answer: The juggler has 13 balls.`}
             </Section>
           </main>
         </div>
-      </div>
-      <div className="fixed bottom-8 left-8 z-50">
-        <AuthorCredit show={showAuthorCredit} />
       </div>
       <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-2">
         <Button
