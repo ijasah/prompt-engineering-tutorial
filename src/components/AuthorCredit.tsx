@@ -19,7 +19,7 @@ export const AuthorCredit = ({ show }: AuthorCreditProps) => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    className="hidden lg:block mt-8"
+                    className="hidden lg:block mt-12"
                 >
                     <motion.div
                         className="group relative flex items-center gap-3"
