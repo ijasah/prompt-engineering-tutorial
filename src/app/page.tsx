@@ -44,6 +44,7 @@ import { ElementsOfPrompt } from '@/components/ElementsOfPrompt';
 import { AnimatePresence, motion } from 'framer-motion';
 import { RolePlayingDemo } from '@/components/RolePlayingDemo';
 import { GuardrailsDiagram } from '@/components/GuardrailsDiagram';
+import { AuthorCredit } from '@/components/AuthorCredit';
 
 const sections = [
   { id: 'how-transformers-work', title: 'Transformers - Recap', icon: <Cpu className="h-8 w-8 text-primary" /> },
@@ -160,7 +161,9 @@ const ApplicationCard = ({ app }: { app: typeof applications[0] }) => {
 
 const Index = () => {
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const [showAuthorCredit, setShowAuthorCredit] = useState(false);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
+  const contentRef = useRef<HTMLDivElement>(null);
   const isScrolling = useRef(false);
 
   useEffect(() => {
@@ -191,12 +194,24 @@ const Index = () => {
   };
 
   useEffect(() => {
-    const observerOptions = {
+    const mainContentObserver = new IntersectionObserver(
+        (entries) => {
+            entries.forEach((entry) => {
+                setShowAuthorCredit(entry.isIntersecting);
+            });
+        },
+        { threshold: 0.1 }
+    );
+    if (contentRef.current) {
+        mainContentObserver.observe(contentRef.current);
+    }
+    
+    const sectionObserverOptions = {
       rootMargin: '-100px 0px -40% 0px',
       threshold: 0,
     };
 
-    const observerCallback: IntersectionObserverCallback = (entries) => {
+    const sectionObserverCallback: IntersectionObserverCallback = (entries) => {
       if (isScrolling.current) return;
 
       entries.forEach((entry) => {
@@ -209,19 +224,22 @@ const Index = () => {
       });
     };
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    const sectionObserver = new IntersectionObserver(sectionObserverCallback, sectionObserverOptions);
     const elements = sections.map(s => document.getElementById(s.id)).filter(el => el);
-    elements.forEach(el => observer.observe(el!));
+    elements.forEach(el => sectionObserver.observe(el!));
 
     return () => {
-      elements.forEach(el => observer.unobserve(el!));
+      elements.forEach(el => sectionObserver.unobserve(el!));
+      if (contentRef.current) {
+        mainContentObserver.unobserve(contentRef.current);
+      }
     };
   }, []);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <Hero />
-      <div id="content" className="container mx-auto px-4 py-16">
+      <div id="content" ref={contentRef} className="container mx-auto px-4 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
           <div className="lg:col-span-1 relative">
              <div className="sticky top-24">
@@ -230,17 +248,7 @@ const Index = () => {
                 scrollToSection(index);
                 }}/>
              </div>
-             <div className="hidden lg:block fixed bottom-8">
-                <a 
-                    href="https://www.linkedin.com/in/ijas-ah/?originalSubdomain=in" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors duration-300"
-                    title="Created by IJAS A H"
-                >
-                    <span className="font-bold">IA</span>
-                </a>
-             </div>
+             <AuthorCredit show={showAuthorCredit} />
           </div>
           <main className="lg:col-span-3 space-y-24">
             <Section id="how-transformers-work" title="Transformers - Recap" icon={<Cpu className="h-8 w-8 text-primary" />}>
