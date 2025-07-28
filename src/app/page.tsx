@@ -1,4 +1,3 @@
-
 // src/app/page.tsx
 'use client';
 
@@ -43,6 +42,7 @@ import { TransformerSimulator } from '@/components/TransformerSimulator';
 import { Card, CardContent } from '@/components/ui/card';
 import { ElementsOfPrompt } from '@/components/ElementsOfPrompt';
 import { AnimatePresence, motion } from 'framer-motion';
+import { RolePlayingDemo } from '@/components/RolePlayingDemo';
 
 const sections = [
   { id: 'how-transformers-work', title: 'Transformers - Recap', icon: <Cpu className="h-8 w-8 text-primary" /> },
@@ -304,7 +304,8 @@ const Index = () => {
 
                 <InteractiveExample
                   title="Basic Summarization Example"
-                  prompt="Summarize the following text in one sentence: Photosynthesis allows plants to convert sunlight into energy."
+                  prompt={`Summarize the following text in one sentence:
+Photosynthesis allows plants to convert sunlight into energy.`}
                   expectedOutput="Photosynthesis converts sunlight into energy for plants."
                   description="Try this basic summarization task"
                 />
@@ -338,7 +339,8 @@ const Index = () => {
                 </div>
                 <InteractiveExample
                   title="Advanced Summarization"
-                  prompt={`Summarize the following text in one sentence: Photosynthesis is a process by which plants convert sunlight into energy.`}
+                  prompt={`Summarize the following text in one sentence:
+Photosynthesis is a process by which plants convert sunlight into energy.`}
                   expectedOutput="Photosynthesis enables plants to convert sunlight into energy."
                   description="Practice summarization techniques"
                 />
@@ -355,15 +357,11 @@ Answer:`}
                 />
                 <div>
                   <h3 className="text-xl font-semibold mb-3 text-foreground">Role Playing</h3>
+                  <p className="text-muted-foreground">
+                    Assigning a role is a powerful way to guide the model's tone, style, and knowledge base. This simulation shows how the output differs when the model is given a specific persona versus when it's not.
+                  </p>
                 </div>
-                <InteractiveExample
-                  title="AI Assistant Role"
-                  prompt={`Role: AI Research Assistant
-Human: What is AI?
-AI:`}
-                  expectedOutput="Artificial Intelligence (AI) is a branch of computer science focused on creating intelligent systems."
-                  description="Demonstrate role-playing capabilities"
-                />
+                <RolePlayingDemo />
               </div>
             </Section>
 
