@@ -33,8 +33,7 @@ const elements = [
 const promptParts = [
     { text: "Classify the text into neutral, negative or positive", element: "Instructions" },
     { text: "\n\nText: I think the food was okay.", element: "Input data" },
-    { text: "\n\n", element: "Context" },
-    { text: "Sentiment:", element: "Output indicator" },
+    { text: "\n\nSentiment:", element: "Output indicator" },
 ];
 
 
