@@ -47,14 +47,77 @@ import { GuardrailsDiagram } from '@/components/GuardrailsDiagram';
 import { AuthorCredit } from '@/components/AuthorCredit';
 
 const sections = [
-  { id: 'how-transformers-work', title: 'Transformers - Recap', icon: <Cpu className="h-8 w-8 text-primary" /> },
-  { id: 'introduction', title: 'Introduction to Prompt Engineering', icon: <BookOpen className="h-8 w-8 text-primary" /> },
-  { id: 'core-concepts', title: 'Core Concepts and Parameters', icon: <Brain className="h-8 w-8 text-primary" /> },
-  { id: 'designing-prompts', title: 'Designing Prompts for Specific Tasks', icon: <Target className="h-8 w-8 text-primary" /> },
-  { id: 'advanced-techniques', title: 'Advanced Techniques', icon: <Settings className="h-8 w-8 text-primary" /> },
-  { id: 'risks', title: 'Risks in Prompt Engineering', icon: <AlertTriangle className="h-8 w-8 text-destructive" /> },
-  { id: 'guardrails', title: 'LLM Guardrails', icon: <Shield className="h-8 w-8 text-primary" /> },
+    { 
+        id: 'how-transformers-work', 
+        title: 'Transformers - Recap', 
+        icon: <Cpu className="h-8 w-8 text-primary" />,
+        subsections: [
+            { id: 'transformer-recap-summary', title: 'Key Stages' },
+            { id: 'transformer-recap-simulation', title: 'Live Simulation' },
+        ]
+    },
+    { 
+        id: 'introduction', 
+        title: 'Introduction to Prompt Engineering', 
+        icon: <BookOpen className="h-8 w-8 text-primary" />,
+        subsections: [
+            { id: 'introduction-what-are-prompts', title: 'What are Prompts?' },
+            { id: 'introduction-elements', title: 'Elements of a Prompt' },
+            { id: 'introduction-applications', title: 'Common Applications' },
+        ]
+    },
+    { 
+        id: 'core-concepts', 
+        title: 'Core Concepts and Parameters', 
+        icon: <Brain className="h-8 w-8 text-primary" />,
+        subsections: [
+            { id: 'core-concepts-temperature', title: 'Temperature' },
+            { id: 'core-concepts-top-p', title: 'Top-P (Nucleus) Sampling' },
+            { id: 'core-concepts-top-k', title: 'Top-K Sampling' },
+        ]
+    },
+    { 
+        id: 'designing-prompts', 
+        title: 'Designing Prompts for Specific Tasks', 
+        icon: <Target className="h-8 w-8 text-primary" />,
+        subsections: [
+            { id: 'designing-prompts-summarization', title: 'Text Summarization' },
+            { id: 'designing-prompts-qa', title: 'Question Answering' },
+            { id: 'designing-prompts-role-playing', title: 'Role Playing' },
+        ]
+    },
+    { 
+        id: 'advanced-techniques', 
+        title: 'Advanced Techniques', 
+        icon: <Settings className="h-8 w-8 text-primary" />,
+        subsections: [
+            { id: 'advanced-techniques-few-shot', title: 'Few-shot vs Zero-shot' },
+            { id: 'advanced-techniques-cot', title: 'Chain-of-Thought (CoT)' },
+        ]
+    },
+    { 
+        id: 'risks', 
+        title: 'Risks in Prompt Engineering', 
+        icon: <AlertTriangle className="h-8 w-8 text-destructive" />,
+        subsections: [
+            { id: 'risks-injection', title: 'Prompt Injection' },
+            { id: 'risks-leaking', title: 'Prompt Leaking' },
+            { id: 'risks-jailbreaking', title: 'Jailbreaking' },
+        ]
+    },
+    { 
+        id: 'guardrails', 
+        title: 'LLM Guardrails', 
+        icon: <Shield className="h-8 w-8 text-primary" />,
+        subsections: [
+            { id: 'guardrails-importance', title: 'Why They Are Important' },
+            { id: 'guardrails-implementation', title: 'Implementation' },
+            { id: 'guardrails-demo', title: 'Interactive Demo' },
+        ]
+    },
 ];
+
+const allSubsections = sections.flatMap(s => s.subsections.map(sub => ({ ...sub, parentId: s.id })));
 
 const applications = [
     {
@@ -160,7 +223,8 @@ const ApplicationCard = ({ app }: { app: typeof applications[0] }) => {
 
 
 const Index = () => {
-  const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const [activeSectionId, setActiveSectionId] = useState(sections[0].id);
+  const [activeSubsectionId, setActiveSubsectionId] = useState(allSubsections[0].id);
   const [showAuthorCredit, setShowAuthorCredit] = useState(false);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -170,13 +234,19 @@ const Index = () => {
     sectionRefs.current = sections.map(s => document.getElementById(s.id));
   }, []);
 
-  const scrollToSection = (index: number) => {
+  const scrollToSection = (id: string) => {
     if (isScrolling.current) return;
-    const element = document.getElementById(sections[index].id);
+    const element = document.getElementById(id);
     if (element) {
       isScrolling.current = true;
       element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      setActiveSectionIndex(index);
+      
+      const parentSection = sections.find(s => s.subsections.some(sub => sub.id === id) || s.id === id);
+      if (parentSection) {
+          setActiveSectionId(parentSection.id);
+      }
+      setActiveSubsectionId(id);
+
       setTimeout(() => {
         isScrolling.current = false;
       }, 1000); // Prevent rapid scrolling
@@ -184,13 +254,15 @@ const Index = () => {
   };
 
   const handleNextSection = () => {
-    const nextIndex = Math.min(activeSectionIndex + 1, sections.length - 1);
-    scrollToSection(nextIndex);
+    const currentOverallIndex = allSubsections.findIndex(s => s.id === activeSubsectionId);
+    const nextIndex = Math.min(currentOverallIndex + 1, allSubsections.length - 1);
+    scrollToSection(allSubsections[nextIndex].id);
   };
 
   const handlePrevSection = () => {
-    const prevIndex = Math.max(activeSectionIndex - 1, 0);
-    scrollToSection(prevIndex);
+    const currentOverallIndex = allSubsections.findIndex(s => s.id === activeSubsectionId);
+    const prevIndex = Math.max(currentOverallIndex - 1, 0);
+    scrollToSection(allSubsections[prevIndex].id);
   };
 
   useEffect(() => {
@@ -207,35 +279,50 @@ const Index = () => {
         heroObserver.observe(heroRef.current);
     }
     
-    const sectionObserverOptions = {
-      rootMargin: '-100px 0px -40% 0px',
+    const observerOptions = {
+      rootMargin: '-100px 0px -50% 0px',
       threshold: 0,
     };
 
-    const sectionObserverCallback: IntersectionObserverCallback = (entries) => {
+    const observerCallback: IntersectionObserverCallback = (entries) => {
       if (isScrolling.current) return;
 
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-            const index = sections.findIndex((s) => s.id === entry.target.id);
-            if (index !== -1) {
-                setActiveSectionIndex(index);
+            const id = entry.target.id;
+            const subsection = allSubsections.find(s => s.id === id);
+            if (subsection) {
+                setActiveSectionId(subsection.parentId);
+                setActiveSubsectionId(subsection.id);
+            } else {
+                 const section = sections.find(s => s.id === id);
+                 if (section) {
+                    setActiveSectionId(section.id);
+                    // Find first subsection of this section
+                    const firstSub = section.subsections[0];
+                    if (firstSub) {
+                        setActiveSubsectionId(firstSub.id);
+                    }
+                 }
             }
         }
       });
     };
 
-    const sectionObserver = new IntersectionObserver(sectionObserverCallback, sectionObserverOptions);
-    const elements = sections.map(s => document.getElementById(s.id)).filter(el => el);
-    elements.forEach(el => sectionObserver.observe(el!));
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+    const elements = allSubsections.map(s => document.getElementById(s.id)).filter(el => el);
+    elements.forEach(el => observer.observe(el!));
 
     return () => {
-      elements.forEach(el => sectionObserver.unobserve(el!));
+      elements.forEach(el => observer.unobserve(el!));
       if (heroRef.current) {
         heroObserver.unobserve(heroRef.current);
       }
     };
   }, []);
+
+  const isFirstSubsection = activeSubsectionId === allSubsections[0].id;
+  const isLastSubsection = activeSubsectionId === allSubsections[allSubsections.length - 1].id;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -247,16 +334,17 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
             <div className="lg:col-span-1 relative">
               <div className="sticky top-24">
-                  <TableOfContents activeSectionId={sections[activeSectionIndex]?.id} onLinkClick={(id) => {
-                  const index = sections.findIndex(s => s.id === id);
-                  scrollToSection(index);
-                  }}/>
+                  <TableOfContents 
+                    activeSectionId={activeSectionId} 
+                    activeSubsectionId={activeSubsectionId}
+                    onLinkClick={scrollToSection}
+                  />
               </div>
-               <div className="fixed bottom-8">
+              <div className="fixed bottom-8">
                 <AuthorCredit show={showAuthorCredit} />
               </div>
             </div>
-            <main className="lg:col-span-3 space-y-24">
+            <main className="lg:col-span-3">
              <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -265,7 +353,7 @@ const Index = () => {
               >
               <Section id="how-transformers-work" title="Transformers - Recap" icon={<Cpu className="h-8 w-8 text-primary" />}>
                   <div className="space-y-6">
-                      <p className="text-muted-foreground">
+                      <p id="transformer-recap-summary" className="text-muted-foreground pt-4">
                           Here's a quick summary of the key stages in a Transformer model that we discussed last week. Understanding this flow is the foundation of prompt engineering.
                       </p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -306,7 +394,7 @@ const Index = () => {
                           </CardContent>
                           </Card>
                       </div>
-                      <div className="pt-8">
+                      <div id="transformer-recap-simulation" className="pt-8">
                            <h3 className="text-xl font-semibold mb-3 flex items-center gap-2">
                               <RefreshCw className="h-6 w-6 text-primary" />
                               Live Simulation
@@ -327,7 +415,7 @@ const Index = () => {
               >
                <Section id="introduction" title="Introduction to Prompt Engineering" icon={<BookOpen className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
-                  <div>
+                  <div id="introduction-what-are-prompts" className="pt-4">
                     <h3 className="text-xl font-semibold mb-3 text-foreground">What are Prompts?</h3>
                     <p className="text-muted-foreground mb-4">
                       Prompts are sets of instructions and context provided to a language model to perform a specific task. 
@@ -340,16 +428,18 @@ const Index = () => {
                     </p>
                   </div>
 
-                  <ElementsOfPrompt />
+                  <div id="introduction-elements" className="pt-8"><ElementsOfPrompt /></div>
 
-                  <InteractiveExample
-                    title="Basic Summarization Example"
-                    prompt={`Summarize the following text in one sentence:
-Photosynthesis allows plants to convert sunlight into energy.`}
-                    expectedOutput="Photosynthesis converts sunlight into energy for plants."
-                    description="Try this basic summarization task"
-                  />
-                  <div className="space-y-4 pt-8">
+                  <div className="pt-4">
+                    <InteractiveExample
+                        title="Basic Summarization Example"
+                        prompt={`Summarize the following text in one sentence:
+    Photosynthesis allows plants to convert sunlight into energy.`}
+                        expectedOutput="Photosynthesis converts sunlight into energy for plants."
+                        description="Try this basic summarization task"
+                    />
+                  </div>
+                  <div id="introduction-applications" className="space-y-4 pt-8">
                       <h3 className="text-xl font-semibold text-foreground">Common Applications</h3>
                       <p className="text-muted-foreground">Prompt engineering can be applied to a wide range of tasks. Here are a few common use-cases.</p>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -370,12 +460,12 @@ Photosynthesis allows plants to convert sunlight into energy.`}
               >
               <Section id="core-concepts" title="Core Concepts and Parameters" icon={<Brain className="h-8 w-8 text-primary" />}>
                 <div className="space-y-8">
-                    <p className="text-muted-foreground">
+                    <p className="text-muted-foreground pt-4">
                       Decoding parameters govern the randomness and determinism of the model's responses. Fine-tuning these can dramatically change the output.
                     </p>
-                    <AdvancedTemperatureDemo />
-                    <AdvancedTopPDemo />
-                    <AdvancedTopKDemo />
+                    <div id="core-concepts-temperature"><AdvancedTemperatureDemo /></div>
+                    <div id="core-concepts-top-p"><AdvancedTopPDemo /></div>
+                    <div id="core-concepts-top-k"><AdvancedTopKDemo /></div>
                 </div>
               </Section>
               </motion.div>
@@ -388,7 +478,7 @@ Photosynthesis allows plants to convert sunlight into energy.`}
               >
               <Section id="designing-prompts" title="Designing Prompts for Specific Tasks" icon={<Target className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
-                  <div>
+                  <div id="designing-prompts-summarization" className="pt-4">
                     <h3 className="text-xl font-semibold mb-3 text-foreground">Text Summarization</h3>
                   </div>
                   <InteractiveExample
@@ -398,7 +488,7 @@ Photosynthesis is a process by which plants convert sunlight into energy.`}
                     expectedOutput="Photosynthesis enables plants to convert sunlight into energy."
                     description="Practice summarization techniques"
                   />
-                  <div>
+                  <div id="designing-prompts-qa" className="pt-8">
                     <h3 className="text-xl font-semibold mb-3 text-foreground">Question Answering</h3>
                   </div>
                   <InteractiveExample
@@ -409,7 +499,7 @@ Answer:`}
                     expectedOutput="Mice."
                     description="Extract specific information from context"
                   />
-                  <div>
+                  <div id="designing-prompts-role-playing" className="pt-8">
                     <h3 className="text-xl font-semibold mb-3 text-foreground">Role Playing</h3>
                     <p className="text-muted-foreground">
                       Assigning a role is a powerful way to guide the model's tone, style, and knowledge base. This simulation shows how the output differs when the model is given a specific persona versus when it's not.
@@ -428,7 +518,7 @@ Answer:`}
               >
               <Section id="advanced-techniques" title="Advanced Techniques" icon={<Settings className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
-                  <div>
+                  <div id="advanced-techniques-few-shot" className="pt-4">
                     <h3 className="text-xl font-semibold mb-3 text-foreground">Few-shot vs Zero-shot Prompting</h3>
                     <p className="text-muted-foreground mb-4">
                       Compare different prompting strategies and their effectiveness.
@@ -450,7 +540,7 @@ Text: 'I am happy.' Emotion:`}
                       description="Examples provided for context"
                     />
                   </div>
-                  <div>
+                  <div id="advanced-techniques-cot" className="pt-8">
                     <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-foreground">
                       <Lightbulb />
                       Chain-of-Thought (CoT) Prompting
@@ -526,7 +616,7 @@ Final Answer: The juggler has 13 balls.`}
                   </div>
 
                   <div className="space-y-4">
-                    <div>
+                    <div id="risks-injection" className="pt-4">
                       <h4 className='text-lg font-semibold text-foreground mb-2'>Prompt Injection</h4>
                       <p className="text-muted-foreground mb-4">
                         Prompt injection happens when malicious or unintended instructions are added to a prompt, altering the model’s response. This can be used to hijack the model and make it perform tasks it was not intended to.
@@ -541,7 +631,7 @@ Final Answer: The juggler has 13 balls.`}
                       />
                     </div>
 
-                    <div>
+                    <div id="risks-leaking" className="pt-8">
                       <h4 className='text-lg font-semibold text-foreground mb-2'>Prompt Leaking</h4>
                       <p className="text-muted-foreground mb-4">
                         Prompt leaking occurs when the model unintentionally reveals sensitive information about the prompt it was given, including internal instructions or confidential details.
@@ -556,7 +646,7 @@ Final Answer: The juggler has 13 balls.`}
                       />
                     </div>
                     
-                    <div>
+                    <div id="risks-jailbreaking" className="pt-8">
                       <h4 className='text-lg font-semibold text-foreground mb-2'>Jailbreaking</h4>
                       <p className="text-muted-foreground mb-4">
                         Jailbreaking is a form of prompt injection aimed at bypassing the model’s safety features or restrictions. It often involves crafting prompts that trick the model into ignoring ethical or moderation safeguards.
@@ -591,13 +681,13 @@ Final Answer: The juggler has 13 balls.`}
               >
               <Section id="guardrails" title="LLM Guardrails" icon={<Shield className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground pt-4">
                     Guardrails in AI refer to a set of rules, validations, and protective mechanisms designed to ensure that artificial intelligence systems operate safely, ethically, and in alignment with human values. As AI models, especially large language models (LLMs), become increasingly capable and widely adopted, the importance of incorporating guardrails into their design and deployment has grown significantly.
                   </p>
 
                   <GuardrailsDiagram />
 
-                  <div>
+                  <div id="guardrails-importance" className="pt-8">
                     <h3 className="text-xl font-semibold mb-3 text-foreground">Why Guardrails Are Important</h3>
                     <ul className="list-disc list-inside space-y-2 text-muted-foreground">
                       <li><strong>Safety:</strong> Prevents AI from generating harmful or dangerous content.</li>
@@ -628,7 +718,7 @@ Final Answer: The juggler has 13 balls.`}
                     </ul>
                   </div>
 
-                  <div>
+                  <div id="guardrails-implementation" className="pt-8">
                     <h3 className="text-xl font-semibold mb-3 text-foreground">Implementing Guardrails in Python</h3>
                     <p className="text-muted-foreground mb-2">Here are some examples of how you might implement guardrails using a library like `guardrails-ai`.</p>
                     <h4 className="font-semibold text-foreground mt-4 mb-2">Installation</h4>
@@ -653,7 +743,7 @@ Final Answer: The juggler has 13 balls.`}
                       <CodeBlock code={'@register_validator(name="no_profanity", data_type="string")\ndef no_profanity(value: str, metadata: dict):\n    if "badword" in value:\n        return FailResult("Profanity detected")\n    return PassResult()'} />
                   </div>
 
-                  <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg mt-8">
+                  <div id="guardrails-demo" className="bg-primary/10 border border-primary/20 p-4 rounded-lg mt-8">
                     <h3 className="text-xl font-semibold mb-3 text-primary">Interactive Guardrail Demonstrations</h3>
                     <p className="text-muted-foreground">
                         Guardrails are a set of rules and validations to ensure AI systems operate safely and ethically. This simulator demonstrates how 20 distinct guardrails work in practice. Select a guardrail from the dropdown below and run the simulation to see how it handles a problematic prompt.
@@ -678,8 +768,8 @@ Final Answer: The juggler has 13 balls.`}
           variant="outline"
           size="icon"
           onClick={handlePrevSection}
-          disabled={activeSectionIndex === 0}
-          className={cn('transition-opacity', activeSectionIndex === 0 && 'opacity-50')}
+          disabled={isFirstSubsection}
+          className={cn('transition-opacity', isFirstSubsection && 'opacity-50')}
         >
           <ChevronUp className="h-4 w-4" />
         </Button>
@@ -687,8 +777,8 @@ Final Answer: The juggler has 13 balls.`}
           variant="outline"
           size="icon"
           onClick={handleNextSection}
-          disabled={activeSectionIndex === sections.length - 1}
-          className={cn('transition-opacity', activeSectionIndex === sections.length - 1 && 'opacity-50')}
+          disabled={isLastSubsection}
+          className={cn('transition-opacity', isLastSubsection && 'opacity-50')}
         >
           <ChevronDown className="h-4 w-4" />
         </Button>
