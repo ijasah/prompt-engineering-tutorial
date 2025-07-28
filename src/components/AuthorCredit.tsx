@@ -1,47 +1,58 @@
 // src/components/AuthorCredit.tsx
 "use client";
 
-import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { AuthorProfileCard } from './AuthorProfileCard';
 
 interface AuthorCreditProps {
     show: boolean;
 }
 
 export const AuthorCredit = ({ show }: AuthorCreditProps) => {
-    const [isHovered, setIsHovered] = useState(false);
-
     return (
         <AnimatePresence>
             {show && (
-                <motion.a
-                    href="https://www.linkedin.com/in/ijas-ah/?originalSubdomain=in"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hidden lg:flex fixed bottom-8 left-8 items-center z-50"
+                <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 20 }}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    onMouseEnter={() => setIsHovered(true)}
-                    onMouseLeave={() => setIsHovered(false)}
+                    className="hidden lg:block mt-8"
                 >
                     <motion.div
-                        layout
-                        className="flex items-center justify-center w-10 h-10 rounded-full bg-muted text-muted-foreground transition-colors duration-300"
+                        className="group relative flex items-center gap-3"
+                        whileHover="hover"
                     >
-                        <span className="font-bold">IA</span>
+                        <a
+                            href="https://www.linkedin.com/in/ijas-ah/?originalSubdomain=in"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                            <Image
+                                src="https://media.licdn.com/dms/image/v2/D5603AQFL8j5rGlEe6Q/profile-displayphoto-shrink_800_800/B56ZQW9G2dGQAc-/0/1735551905650?e=1756339200&v=beta&t=E4AWEF93tBYZkh3E3TmomcY9tFXxQVHBMa3mhrxySGs"
+                                alt="IJAS A H"
+                                width={28}
+                                height={28}
+                                className="rounded-full"
+                            />
+                            <span>Created by IJAS A H</span>
+                        </a>
+
+                        <motion.div
+                            className="absolute bottom-full left-0 mb-2 w-max"
+                            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                            variants={{
+                                hover: { opacity: 1, y: 0, scale: 1 },
+                            }}
+                            transition={{ duration: 0.2, ease: 'easeOut' }}
+                        >
+                           <AuthorProfileCard />
+                        </motion.div>
                     </motion.div>
-                    <motion.div
-                        style={{ width: isHovered ? 'auto' : 0, whiteSpace: 'nowrap' }}
-                        className="overflow-hidden transition-all duration-300"
-                    >
-                         <span className="ml-3 font-medium text-muted-foreground">
-                            Created by IJAS A H
-                        </span>
-                    </motion.div>
-                </motion.a>
+                </motion.div>
             )}
         </AnimatePresence>
     );

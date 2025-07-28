@@ -251,8 +251,8 @@ const Index = () => {
                 const index = sections.findIndex(s => s.id === id);
                 scrollToSection(index);
                 }}/>
+                <AuthorCredit show={showAuthorCredit} />
              </div>
-             <AuthorCredit show={showAuthorCredit} />
           </div>
           <main className="lg:col-span-3 space-y-24">
             <Section id="how-transformers-work" title="Transformers - Recap" icon={<Cpu className="h-8 w-8 text-primary" />}>
