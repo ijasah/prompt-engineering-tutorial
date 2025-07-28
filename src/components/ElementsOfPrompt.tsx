@@ -1,0 +1,128 @@
+// src/components/ElementsOfPrompt.tsx
+"use client";
+
+import { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { cn } from '@/lib/utils';
+import { useInView } from 'framer-motion';
+
+const elements = [
+  { text: "Instructions", color: "text-blue-400" },
+  { text: "Context", color: "text-gray-400", isHidden: true }, // Context is implicit here
+  { text: "Input data", color: "text-yellow-400" },
+  { text: "Output indicator", color: "text-pink-400" },
+];
+
+const promptParts = [
+    { text: "Classify the text into neutral, negative or positive", color: "text-blue-400", element: "Instructions" },
+    { text: "\n\nText: ", color: "text-gray-400", element: "Context" },
+    { text: "I think the food was okay.", color: "text-yellow-400", element: "Input data" },
+    { text: "\n\nSentiment:", color: "text-pink-400", element: "Output indicator" },
+];
+
+export const ElementsOfPrompt = () => {
+    const containerRef = useRef(null);
+    const isInView = useInView(containerRef, { once: true, amount: 0.5 });
+    
+    const [refs, setRefs] = useState<Record<string, HTMLDivElement | null>>({});
+
+    const lineVariants = {
+        hidden: { pathLength: 0, opacity: 0 },
+        visible: (i: number) => ({
+            pathLength: 1,
+            opacity: 1,
+            transition: {
+                pathLength: { delay: i * 0.5, type: "spring", duration: 1.5, bounce: 0 },
+                opacity: { delay: i * 0.5, duration: 0.01 }
+            }
+        })
+    };
+
+    const getLinePath = (startId: string, endId: string) => {
+        const startEl = refs[startId];
+        const endEl = refs[endId];
+        const containerEl = containerRef.current;
+
+        if (!startEl || !endEl || !containerEl) return "";
+
+        const containerRect = (containerEl as HTMLElement).getBoundingClientRect();
+        const startRect = startEl.getBoundingClientRect();
+        const endRect = endEl.getBoundingClientRect();
+
+        const startX = startRect.right - containerRect.left + 10;
+        const startY = startRect.top - containerRect.top + startRect.height / 2;
+        
+        const endX = endRect.left - containerRect.left + (endRect.width / 2);
+        const endY = endRect.top - containerRect.top;
+
+        return `M ${startX} ${startY} L ${startX + 20} ${startY} L ${endX} ${endY}`;
+    };
+
+    return (
+        <div ref={containerRef} className="relative my-8 p-6 bg-muted/30 rounded-lg border">
+            <h3 className="text-xl font-semibold mb-6">Elements of a Prompt</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <ul className="space-y-4">
+                    {elements.map((el, i) => !el.isHidden && (
+                        <motion.li 
+                            key={el.text}
+                            className={cn("flex items-center gap-3", el.color)}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={isInView ? { opacity: 1, x: 0 } : {}}
+                            transition={{ delay: i * 0.2 }}
+                        >
+                            <div ref={node => setRefs(prev => ({...prev, [`list-${el.text}`]: node}))} className="w-2 h-2 rounded-full" style={{backgroundColor: 'currentColor'}} />
+                            <span className="font-semibold">{el.text}</span>
+                        </motion.li>
+                    ))}
+                </ul>
+                <div className="relative bg-background/50 p-6 rounded-lg border font-mono text-sm leading-relaxed whitespace-pre-wrap">
+                    {promptParts.map((part, i) => (
+                        <span key={i} ref={node => setRefs(prev => ({...prev, [`prompt-${part.element}`]: node}))} className={part.color}>
+                            {part.text}
+                        </span>
+                    ))}
+                </div>
+            </div>
+            <AnimatePresence>
+                {isInView && (
+                    <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                        <motion.path
+                            d={getLinePath("list-Instructions", "prompt-Instructions")}
+                            fill="none"
+                            stroke="hsl(var(--foreground))"
+                            strokeWidth="1.5"
+                            strokeDasharray="4 4"
+                            variants={lineVariants}
+                            initial="hidden"
+                            animate="visible"
+                            custom={0}
+                        />
+                         <motion.path
+                            d={getLinePath("list-Input data", "prompt-Input data")}
+                            fill="none"
+                            stroke="hsl(var(--foreground))"
+                            strokeWidth="1.5"
+                            strokeDasharray="4 4"
+                            variants={lineVariants}
+                            initial="hidden"
+                            animate="visible"
+                            custom={1}
+                        />
+                         <motion.path
+                            d={getLinePath("list-Output indicator", "prompt-Output indicator")}
+                            fill="none"
+                            stroke="hsl(var(--foreground))"
+                            strokeWidth="1.5"
+                            strokeDasharray="4 4"
+                            variants={lineVariants}
+                            initial="hidden"
+                            animate="visible"
+                            custom={2}
+                        />
+                    </svg>
+                )}
+            </AnimatePresence>
+        </div>
+    );
+};

@@ -33,6 +33,7 @@ import { GuardrailSimulator } from '@/components/GuardrailSimulator';
 import { CodeBlock } from '@/components/ui/code-block';
 import { TransformerSimulator } from '@/components/TransformerSimulator';
 import { Card, CardContent } from '@/components/ui/card';
+import { ElementsOfPrompt } from '@/components/ElementsOfPrompt';
 
 const sections = [
   { id: 'how-transformers-work', title: 'Transformers - Recap', icon: <Cpu className="h-8 w-8 text-primary" /> },
@@ -186,6 +187,9 @@ const Index = () => {
                     in solving diverse problems.
                   </p>
                 </div>
+
+                <ElementsOfPrompt />
+
                 <InteractiveExample
                   title="Basic Summarization Example"
                   prompt="Summarize the following text in one sentence: Photosynthesis allows plants to convert sunlight into energy."
@@ -443,40 +447,25 @@ const Index = () => {
                   <h3 className="text-xl font-semibold mb-3 text-foreground">Implementing Guardrails in Python</h3>
                   <p className="text-muted-foreground mb-2">Here are some examples of how you might implement guardrails using a library like `guardrails-ai`.</p>
                   <h4 className="font-semibold text-foreground mt-4 mb-2">Installation</h4>
-                  <CodeBlock code={`pip install guardrails-ai\nguardrails configure`} />
+                  <CodeBlock code={'pip install guardrails-ai\nguardrails configure'} />
                   <h4 className="font-semibold text-foreground mt-4 mb-2">Basic Usage</h4>
-                  <CodeBlock code={`from guardrails import Guard
-from guardrails.hub import Toxicity
-
-toxicity_validator = Toxicity(threshold=0.5)
-guard = Guard(validators=[toxicity_validator])
-
-result = guard.validate("I hate you")
-
-if result.valid:
-    print("Valid")
-else:
-    print("Toxic content detected")`} />
+                  <CodeBlock code={'from guardrails import Guard\nfrom guardrails.hub import Toxicity\n\ntoxicity_validator = Toxicity(threshold=0.5)\nguard = Guard(validators=[toxicity_validator])\n\nresult = guard.validate("I hate you")\n\nif result.valid:\n    print("Valid")\nelse:\n    print("Toxic content detected")'} />
                 </div>
 
                 <div>
                   <h3 className="text-xl font-semibold mb-3 text-foreground">Common Validator Types and Examples</h3>
                     <h4 className='font-semibold text-foreground mt-4 mb-2'>RegexMatch</h4>
-                    <CodeBlock code={`from guardrails.hub import RegexMatch\nRegexMatch(regex=r"\\d{10}")`} />
+                    <CodeBlock code={'from guardrails.hub import RegexMatch\nRegexMatch(regex=r"\\d{10}")'} />
                     <h4 className='font-semibold text-foreground mt-4 mb-2'>ToxicLanguage</h4>
-                    <CodeBlock code={`ToxicLanguage(threshold=0.5)`} />
+                    <CodeBlock code={'ToxicLanguage(threshold=0.5)'} />
                     <h4 className='font-semibold text-foreground mt-4 mb-2'>DetectPII</h4>
-                    <CodeBlock code={`from guardrails.hub import DetectPII\nDetectPII(pii_entities=["EMAIL_ADDRESS"])`} />
+                    <CodeBlock code={'from guardrails.hub import DetectPII\nDetectPII(pii_entities=["EMAIL_ADDRESS"])'} />
                     <h4 className='font-semibold text-foreground mt-4 mb-2'>ValidChoices</h4>
-                    <CodeBlock code={`from guardrails.hub import ValidChoices\nValidChoices(choices=["OpenAI", "Anthropic"])`} />
+                    <CodeBlock code={'from guardrails.hub import ValidChoices\nValidChoices(choices=["OpenAI", "Anthropic"])'} />
                      <h4 className='font-semibold text-foreground mt-4 mb-2'>RestrictToTopic</h4>
-                    <CodeBlock code={`from guardrails.hub import RestrictToTopic\nRestrictToTopic(valid_topics=["bike"], invalid_topics=["phone"])`} />
+                    <CodeBlock code={'from guardrails.hub import RestrictToTopic\nRestrictToTopic(valid_topics=["bike"], invalid_topics=["phone"])'} />
                     <h4 className='font-semibold text-foreground mt-4 mb-2'>Custom Validator</h4>
-                    <CodeBlock code={`@register_validator(name="no_profanity", data_type="string")
-def no_profanity(value: str, metadata: dict):
-    if "badword" in value:
-        return FailResult("Profanity detected")
-    return PassResult()`} />
+                    <CodeBlock code={'@register_validator(name="no_profanity", data_type="string")\ndef no_profanity(value: str, metadata: dict):\n    if "badword" in value:\n        return FailResult("Profanity detected")\n    return PassResult()'} />
                 </div>
 
                 <div className="bg-primary/10 border border-primary/20 p-4 rounded-lg mt-8">
@@ -522,5 +511,3 @@ def no_profanity(value: str, metadata: dict):
 };
 
 export default Index;
-
-    
