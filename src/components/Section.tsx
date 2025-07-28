@@ -10,7 +10,7 @@ interface SectionProps {
 
 export const Section = ({ id, title, icon, children }: SectionProps) => {
   return (
-    <section id={id} className="scroll-mt-24">
+    <section id={id} className="pt-20 pb-20">
       <div className="flex items-center gap-4 mb-6">
         {icon}
         <h2 className="text-3xl font-bold tracking-tight">{title}</h2>
@@ -22,5 +22,3 @@ export const Section = ({ id, title, icon, children }: SectionProps) => {
     </section>
   );
 };
-
-    

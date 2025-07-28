@@ -2,8 +2,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Bot, GraduationCap } from "lucide-react";
+import { Bot, ChevronDown, GraduationCap } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
+import { motion } from "framer-motion";
 
 export const Hero = () => {
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
@@ -40,6 +41,18 @@ export const Hero = () => {
             </a>
         </div>
       </div>
+       <a href="#content" onClick={handleScroll} className="absolute bottom-10">
+            <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    repeatType: "loop",
+                }}
+            >
+                <ChevronDown className="w-8 h-8 text-muted-foreground" />
+            </motion.div>
+        </a>
     </header>
   );
 };

@@ -86,7 +86,7 @@ const applications = [
       exampleOutput: "This interaction forms the basis of a chatbot."
     },
     {
-      icon: <BrainCircuit className="w-8 w-8 text-primary" />,
+      icon: <BrainCircuit className="w-8 h-8 text-primary" />,
       title: "AI Agents",
       description: "Autonomous agents that perform tasks.",
       examplePrompt: "Tool: Calculator\nGoal: What is 15% of $300?\nAction: Calculator(300 * 0.15)",
@@ -163,7 +163,7 @@ const Index = () => {
   const [activeSectionIndex, setActiveSectionIndex] = useState(0);
   const [showAuthorCredit, setShowAuthorCredit] = useState(false);
   const sectionRefs = useRef<(HTMLElement | null)[]>([]);
-  const heroRef = useRef<HTMLElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
   const isScrolling = useRef(false);
 
   useEffect(() => {
@@ -197,11 +197,10 @@ const Index = () => {
     const heroObserver = new IntersectionObserver(
         (entries) => {
             entries.forEach((entry) => {
-                // Show the author credit when the hero is NOT intersecting (i.e., scrolled past)
                 setShowAuthorCredit(!entry.isIntersecting);
             });
         },
-        { threshold: 0.1 } // 10% of the hero needs to be visible/invisible to trigger
+        { threshold: 0.1 } 
     );
 
     if (heroRef.current) {
@@ -247,17 +246,23 @@ const Index = () => {
         <div className="container mx-auto px-4 py-16">
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
             <div className="lg:col-span-1 relative">
-               <div className="sticky top-24">
+              <div className="sticky top-24">
                   <TableOfContents activeSectionId={sections[activeSectionIndex]?.id} onLinkClick={(id) => {
                   const index = sections.findIndex(s => s.id === id);
                   scrollToSection(index);
                   }}/>
-               </div>
-               <div className="fixed bottom-8">
-                  <AuthorCredit show={showAuthorCredit} />
+                  <div className="mt-12">
+                    <AuthorCredit show={showAuthorCredit} />
+                  </div>
               </div>
             </div>
             <main className="lg:col-span-3 space-y-24">
+             <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
               <Section id="how-transformers-work" title="Transformers - Recap" icon={<Cpu className="h-8 w-8 text-primary" />}>
                   <div className="space-y-6">
                       <p className="text-muted-foreground">
@@ -313,7 +318,13 @@ const Index = () => {
                       <TransformerSimulator />
                   </div>
               </Section>
-
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
                <Section id="introduction" title="Introduction to Prompt Engineering" icon={<BookOpen className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
                   <div>
@@ -349,7 +360,14 @@ Photosynthesis allows plants to convert sunlight into energy.`}
                   </div>
                 </div>
               </Section>
+              </motion.div>
 
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
               <Section id="core-concepts" title="Core Concepts and Parameters" icon={<Brain className="h-8 w-8 text-primary" />}>
                 <div className="space-y-8">
                     <p className="text-muted-foreground">
@@ -360,7 +378,14 @@ Photosynthesis allows plants to convert sunlight into energy.`}
                     <AdvancedTopKDemo />
                 </div>
               </Section>
+              </motion.div>
 
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
               <Section id="designing-prompts" title="Designing Prompts for Specific Tasks" icon={<Target className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
                   <div>
@@ -393,7 +418,14 @@ Answer:`}
                   <RolePlayingDemo />
                 </div>
               </Section>
+              </motion.div>
 
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
               <Section id="advanced-techniques" title="Advanced Techniques" icon={<Settings className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
                   <div>
@@ -469,7 +501,14 @@ Final Answer: The juggler has 13 balls.`}
                   </div>
                 </div>
               </Section>
+              </motion.div>
 
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
               <Section id="risks" title="Risks in Prompt Engineering" icon={<AlertTriangle className="h-8 w-8 text-destructive" />}>
                 <div className="space-y-6">
                   <div className="bg-destructive/10 border border-destructive/20 p-4 rounded-lg">
@@ -542,7 +581,14 @@ Final Answer: The juggler has 13 balls.`}
                   </div>
                 </div>
               </Section>
+              </motion.div>
 
+              <motion.div
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, amount: 0.2 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              >
               <Section id="guardrails" title="LLM Guardrails" icon={<Shield className="h-8 w-8 text-primary" />}>
                 <div className="space-y-6">
                   <p className="text-muted-foreground">
@@ -622,6 +668,7 @@ Final Answer: The juggler has 13 balls.`}
                   </div>
                 </div>
               </Section>
+              </motion.div>
             </main>
           </div>
         </div>
