@@ -10,18 +10,21 @@ const elements = [
   {
     name: "Instructions",
     color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+    colorClass: "bg-blue-500/20",
     icon: <FileText />,
     description: "The task the model should perform. It's the 'what to do'."
   },
   {
     name: "Input data",
     color: "bg-yellow-500/20 text-yellow-400 border-yellow-500/30",
+    colorClass: "bg-yellow-500/20",
     icon: <Lightbulb />,
     description: "The content the model works with. This provides context."
   },
   {
     name: "Output indicator",
     color: "bg-pink-500/20 text-pink-400 border-pink-500/30",
+    colorClass: "bg-pink-500/20",
     icon: <CheckCircle />,
     description: "Guides the model's output format, starting its response."
   },
@@ -36,11 +39,11 @@ const promptParts = [
 
 
 export const ElementsOfPrompt = () => {
-    const [activeElement, setActiveElement] = useState(elements[0].name);
+    const [activeElement, setActiveElement] = useState(elements[1].name);
 
     return (
         <div className="my-8">
-            <h3 className="text-xl font-semibold mb-6 text-center">Elements of a Prompt</h3>
+            <h3 className="text-xl font-semibold mb-6 text-left">Elements of a Prompt</h3>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
                 {/* Left side: Clickable Elements */}
                 <div className="space-y-4">
@@ -68,27 +71,23 @@ export const ElementsOfPrompt = () => {
                     <p>
                         {promptParts.map((part, i) => {
                              const isActive = part.element === activeElement;
-                             const activeColor = elements.find(e => e.name === activeElement)?.color.split(' ')[0] ?? '';
+                             const activeElementData = elements.find(e => e.name === activeElement);
                              
                              return (
-                                <span key={i} className="transition-all duration-300">
-                                    <motion.span
-                                        className={cn(
-                                            "rounded-md p-1",
-                                            isActive ? `text-foreground` : 'text-muted-foreground'
-                                        )}
-                                        style={{
-                                          boxDecorationBreak: 'clone',
-                                          WebkitBoxDecorationBreak: 'clone',
-                                        }}
-                                        animate={{ 
-                                            backgroundColor: isActive && part.element === activeElement ? `hsl(var(--${activeColor.split('-')[1]}-500-hsl) / 0.2)` : 'rgba(0,0,0,0)'
-                                        }}
-                                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                                    >
-                                        {part.text}
-                                    </motion.span>
-                                </span>
+                                <motion.span
+                                    key={i}
+                                    className={cn(
+                                        "p-1 transition-colors duration-300",
+                                        isActive ? "text-foreground" : "text-muted-foreground",
+                                        isActive && activeElementData ? activeElementData.colorClass : ""
+                                    )}
+                                    style={{
+                                      boxDecorationBreak: 'clone',
+                                      WebkitBoxDecorationBreak: 'clone',
+                                    }}
+                                >
+                                    {part.text}
+                                </motion.span>
                             )
                         })}
                     </p>
