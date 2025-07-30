@@ -10,6 +10,7 @@ import { Input } from './ui/input';
 import { Badge } from './ui/badge';
 import { useTypewriter } from '@/hooks/use-typewriter';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const initialInput = "what is ai?";
 const embeddingDim = 8;
@@ -27,10 +28,40 @@ const stepConfig: Record<SimulationStep, { title: string; description: string; i
     transformer_block: { title: "Step 4: Transformer Block", description: "The core of the model. The input vectors now pass through the attention and processing layers.", intuition: "Processing Context" },
     attention: { title: "Step 5: Multi-Head Attention", description: "The model weighs the importance of each token in relation to every other token. This allows it to 'focus' on the most relevant parts of the input to understand context.", intuition: "Weighing Importance" },
     feed_forward: { title: "Step 6: Feed-Forward Network", description: "The context-rich vectors from the attention layer are passed through a neural network for further processing and refinement.", intuition: "Deeper Thinking" },
-    predicting: { title: "Step 7: Prediction", description: "The model uses the final processed vector to predict the most likely *next* token from its entire vocabulary.", intuition: "Generating Next Word" },
+    predicting: { title: "Step 7: Prediction", description: "The model uses the final processed vector to calculate a probability score for all possible next tokens in its vocabulary. The highest-scoring token is typically chosen.", intuition: "Generating Next Word" },
     appending: { title: "Step 8: Appending (Autoregression)", description: "The newly generated token is appended to the input sequence. The entire process then repeats to generate the next token, creating a coherent response.", intuition: "Continuing the Sentence" },
     finished: { title: "Finished", description: "The simulation has completed the generation cycles.", intuition: "Done" },
 };
+
+const tokenPredictions = [
+    [ // Cycle 0
+        { token: 'a', probability: 0.85 },
+        { token: 'the', probability: 0.08 },
+        { token: 'an', probability: 0.05 },
+        { token: 'that', probability: 0.02 },
+    ],
+    [ // Cycle 1
+        { token: 'field', probability: 0.72 },
+        { token: 'branch', probability: 0.15 },
+        { token: 'discipline', probability: 0.11 },
+        { token: 'type', probability: 0.02 },
+    ],
+     [ // Cycle 2
+        { token: 'of', probability: 0.91 },
+        { token: 'in', probability: 0.06 },
+        { token: 'within', probability: 0.03 },
+    ],
+    [ // Cycle 3
+        { token: 'computer', probability: 0.65 },
+        { token: 'data', probability: 0.25 },
+        { token: 'computational', probability: 0.10 },
+    ],
+    [ // Cycle 4
+        { token: 'science', probability: 0.88 },
+        { token: 'studies', probability: 0.09 },
+        { token: 'engineering', probability: 0.03 },
+    ],
+];
 
 const EmbeddingVector = ({ vector, small }: { vector: number[], small?: boolean }) => (
     <div className={cn("flex space-x-1 p-1 bg-muted rounded-md border", small && "p-0.5")}>
@@ -95,6 +126,7 @@ export const TransformerSimulator = () => {
     const [tokens, setTokens] = useState<string[]>([]);
     const [generatedTokens, setGeneratedTokens] = useState<string[]>([]);
     const [predictedToken, setPredictedToken] = useState<string | null>(null);
+    const [predictedDistribution, setPredictedDistribution] = useState<{ token: string; probability: number }[] | null>(null);
     const [cycle, setCycle] = useState(0);
 
     const currentStepIndex = STEPS.indexOf(step);
@@ -104,6 +136,7 @@ export const TransformerSimulator = () => {
         setTokens(inputText.split(' ').filter(Boolean));
         setGeneratedTokens([]);
         setPredictedToken(null);
+        setPredictedDistribution(null);
         setCycle(0);
         setStep('tokenizing');
     };
@@ -117,6 +150,7 @@ export const TransformerSimulator = () => {
             if (predictedToken) {
                 setGeneratedTokens(prev => [...prev, predictedToken]);
                 setPredictedToken(null);
+                setPredictedDistribution(null);
                 setStep('embedding'); // Loop back
                 setCycle(prev => prev + 1);
             }
@@ -131,6 +165,7 @@ export const TransformerSimulator = () => {
         setTokens([]);
         setGeneratedTokens([]);
         setPredictedToken(null);
+        setPredictedDistribution(null);
         setCycle(0);
     };
 
@@ -150,9 +185,11 @@ export const TransformerSimulator = () => {
 
     useEffect(() => {
         if (step === 'predicting') {
-            const possibleOutputs = ['a', 'field', 'of', 'computer', 'science'];
-            const nextToken = possibleOutputs[cycle % possibleOutputs.length];
-            setPredictedToken(nextToken);
+             if (cycle <= maxCycles) {
+                const distribution = tokenPredictions[cycle];
+                setPredictedDistribution(distribution);
+                setPredictedToken(distribution[0].token);
+            }
         }
     }, [step, cycle]);
 
@@ -261,14 +298,40 @@ export const TransformerSimulator = () => {
                                         </div>
                                     </div>
                                 )}
-                                 {(step === 'predicting') && predictedToken && (
-                                    <div className={cn("transition-opacity duration-500", step === 'predicting' ? 'opacity-100' : 'opacity-0')}>
+                                 {step === 'predicting' && predictedDistribution && (
+                                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
                                         <h5 className="font-semibold text-xs text-center mb-2 text-primary">Prediction</h5>
                                         <div className="flex flex-col gap-2 items-center">
                                             <p className="text-sm text-muted-foreground">The model predicts the most likely next token.</p>
-                                            <p className="font-mono text-lg text-primary animate-pulse p-4 bg-primary/10 rounded-md">{predictedToken}</p>
+                                             <div className="flex flex-wrap justify-center gap-2 mt-2">
+                                                <AnimatePresence>
+                                                {predictedDistribution.map(({ token, probability }, index) => (
+                                                    <motion.div
+                                                        key={token}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: index * 0.1 }}
+                                                        className={cn(
+                                                            "relative rounded-md px-3 py-1.5 font-mono text-sm shadow-sm transition-all",
+                                                            index === 0 
+                                                                ? "text-primary-foreground animate-shimmer border border-primary/50" 
+                                                                : "text-foreground"
+                                                        )}
+                                                        style={{
+                                                            background: `linear-gradient(90deg, hsl(var(--primary) / ${index === 0 ? 0.4 : probability}) 0%, hsl(var(--primary) / 0) 100%)`,
+                                                            backgroundColor: `hsl(var(--muted))`
+                                                        }}
+                                                    >
+                                                        {token}
+                                                        <Badge variant="outline" className="ml-2 border-0 bg-black/10 text-foreground/70">
+                                                            {(probability * 100).toFixed()}%
+                                                        </Badge>
+                                                    </motion.div>
+                                                ))}
+                                                </AnimatePresence>
+                                            </div>
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 )}
                             </div>
                         </div>
