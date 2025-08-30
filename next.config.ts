@@ -1,12 +1,10 @@
 import type {NextConfig} from 'next';
 
-const isProd = process.env.NODE_ENV === 'production'
-
 const nextConfig: NextConfig = {
   /* config options here */
   output: 'export',
-  basePath: isProd ? '/prompt-engineering-tutorial' : '',
-  assetPrefix: isProd ? '/prompt-engineering-tutorial/' : '',
+  basePath: '/prompt-engineering-tutorial',
+  assetPrefix: '/prompt-engineering-tutorial/',
   typescript: {
     ignoreBuildErrors: true,
   },
