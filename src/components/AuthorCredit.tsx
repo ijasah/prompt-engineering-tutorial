@@ -38,7 +38,7 @@ export const AuthorCredit = ({ show }: AuthorCreditProps) => {
                                 height={28}
                                 className="rounded-full"
                             />
-                            <span>Authored by IJAS A H</span>
+                            <span className="whitespace-nowrap">Authored by IJAS A H</span>
                         </a>
 
                         <motion.div
