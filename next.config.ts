@@ -1,10 +1,9 @@
 import type {NextConfig} from 'next';
 
+const isGithubActions = process.env.GITHUB_ACTIONS === 'true';
+
 const nextConfig: NextConfig = {
-  /* config options here */
   output: 'export',
-  basePath: '/prompt-engineering-tutorial',
-  assetPrefix: '/prompt-engineering-tutorial/',
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -41,5 +40,11 @@ const nextConfig: NextConfig = {
     ],
   },
 };
+
+if (isGithubActions) {
+  const repo = process.env.GITHUB_REPOSITORY.replace(/.*?\//, '');
+  nextConfig.basePath = `/${repo}`;
+  nextConfig.assetPrefix = `/${repo}/`;
+}
 
 export default nextConfig;
